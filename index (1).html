@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evander Gas — Fast Delivery</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fire: #FF4500;
+    --fire2: #FF8C00;
+    --gold: #FFD700;
+    --dark: #0D0D0D;
+    --dark2: #1A1A1A;
+    --dark3: #252525;
+    --light: #F5F0E8;
+    --muted: #888;
+    --success: #22C55E;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--dark);
+    color: var(--light);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 80%, rgba(255,69,0,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgba(255,140,0,0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { max-width: 820px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+  header { padding: 28px 0 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo-circle {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--fire), var(--fire2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; box-shadow: 0 0 28px rgba(255,69,0,0.5); flex-shrink: 0; overflow: hidden;
+  }
+  .logo-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .brand-text h1 {
+    font-family: 'Black Han Sans', sans-serif; font-size: 1.7rem; letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--fire), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;
+  }
+  .brand-text p { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+  .header-contact a { color: var(--fire2); text-decoration: none; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 6px; }
+  .header-contact a:hover { color: var(--gold); }
+  .hero { padding: 52px 0 36px; text-align: center; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,69,0,0.15); border: 1px solid rgba(255,69,0,0.3);
+    border-radius: 99px; padding: 6px 16px; font-size: 0.78rem; color: var(--fire2);
+    margin-bottom: 22px; letter-spacing: 0.5px;
+  }
+  .hero h2 { font-family: 'Black Han Sans', sans-serif; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1; margin-bottom: 14px; }
+  .hero h2 span { color: var(--fire); }
+  .hero p { color: #aaa; max-width: 440px; margin: 0 auto; line-height: 1.7; font-size: 0.95rem; }
+  .section-title { font-family: 'Black Han Sans', sans-serif; font-size: 1.3rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+  .gas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-bottom: 32px; }
+  .gas-card {
+    background: var(--dark2); border: 2px solid transparent; border-radius: var(--radius);
+    padding: 18px 12px; text-align: center; cursor: pointer; transition: all 0.25s ease;
+    position: relative; user-select: none;
+  }
+  .gas-card:hover { border-color: rgba(255,69,0,0.4); transform: translateY(-2px); }
+  .gas-card.selected { border-color: var(--fire); background: rgba(255,69,0,0.08); }
+  .gas-card .tank-icon { font-size: 2.4rem; margin-bottom: 8px; display: block; }
+  .gas-card .tank-size { font-family: 'Black Han Sans', sans-serif; font-size: 1.1rem; color: var(--light); }
+  .gas-card .tank-price { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+  .qty-controls { display: none; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+  .gas-card.selected .qty-controls { display: flex; }
+  .qty-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--fire);
+    background: transparent; color: var(--fire); font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s; line-height: 1;
+  }
+  .qty-btn:hover { background: var(--fire); color: white; }
+  .qty-num { font-weight: 700; font-size: 1rem; min-width: 20px; text-align: center; }
+  .cart-summary { background: var(--dark3); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 24px; display: none; }
+  .cart-summary.visible { display: block; }
+  .cart-title { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .cart-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cart-item-tag { background: rgba(255,69,0,0.12); border: 1px solid rgba(255,69,0,0.25); border-radius: 8px; padding: 5px 12px; font-size: 0.85rem; color: var(--fire2); font-weight: 600; }
+  .order-form { display: flex; flex-direction: column; gap: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .field input, .field textarea, .field select {
+    width: 100%; background: var(--dark2); border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 12px 14px; color: var(--light);
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; transition: border 0.2s; outline: none;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--fire); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .btn-order {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--fire), var(--fire2));
+    border: none; border-radius: 12px; color: white;
+    font-family: 'Black Han Sans', sans-serif; font-size: 1.15rem; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.25s; box-shadow: 0 6px 24px rgba(255,69,0,0.35);
+    display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px;
+  }
+  .btn-order:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(255,69,0,0.5); }
+  .track-section { padding: 40px 0; }
+  .track-box { background: var(--dark2); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 28px; }
+  .track-input-row { display: flex; gap: 10px; }
+  .track-input-row input { flex: 1; background: var(--dark3); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: var(--light); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; }
+  .track-input-row input:focus { border-color: var(--fire); }
+  .btn-track { padding: 12px 22px; background: linear-gradient(135deg, var(--fire), var(--fire2)); border: none; border-radius: 10px; color: white; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap; }
+  .track-result { margin-top: 24px; display: none; }
+  .track-result.visible { display: block; }
+  .order-info { background: var(--dark3); border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+  .order-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .info-cell label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .info-cell p { font-weight: 600; margin-top: 2px; font-size: 0.92rem; }
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-step { display: flex; gap: 14px; padding: 14px 0; position: relative; }
+  .step-indicator { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .step-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); background: var(--dark3); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.4s; flex-shrink: 0; }
+  .step-line { width: 2px; flex: 1; background: rgba(255,255,255,0.08); margin: 4px 0; min-height: 20px; }
+  .timeline-step:last-child .step-line { display: none; }
+  .step-content { padding-top: 4px; }
+  .step-content h4 { font-weight: 600; font-size: 0.95rem; }
+  .step-content p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .step-time { font-size: 0.72rem; color: var(--fire2); margin-top: 4px; font-weight: 500; }
+  .timeline-step.done .step-dot { background: linear-gradient(135deg, var(--fire), var(--fire2)); border-color: var(--fire); box-shadow: 0 0 12px rgba(255,69,0,0.5); color: white; }
+  .timeline-step.done .step-line { background: linear-gradient(to bottom, var(--fire), rgba(255,69,0,0.2)); }
+  .timeline-step.active .step-dot { border-color: var(--gold); background: rgba(255,215,0,0.1); box-shadow: 0 0 16px rgba(255,215,0,0.4); color: var(--gold); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 12px rgba(255,215,0,0.4); } 50% { box-shadow: 0 0 24px rgba(255,215,0,0.7); } }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--dark2); border: 1px solid rgba(255,69,0,0.3); border-radius: 20px; padding: 36px 28px; max-width: 400px; width: 100%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-icon { font-size: 3.5rem; margin-bottom: 16px; animation: popIn 0.5s ease; }
+  @keyframes popIn { 0% { transform: scale(0) rotate(-10deg); } 70% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0); } }
+  .modal h3 { font-family: 'Black Han Sans', sans-serif; font-size: 1.6rem; margin-bottom: 10px; }
+  .modal p { color: #aaa; line-height: 1.6; margin-bottom: 8px; font-size: 0.92rem; }
+  .order-id-display { background: rgba(255,69,0,0.12); border: 1px dashed rgba(255,69,0,0.4); border-radius: 10px; padding: 10px 16px; font-family: 'Black Han Sans', sans-serif; font-size: 1.3rem; color: var(--fire2); letter-spacing: 3px; margin: 14px 0; }
+  .modal-hint { font-size: 0.8rem; color: var(--muted); }
+  .btn-close-modal { margin-top: 22px; padding: 12px 32px; background: linear-gradient(135deg, var(--fire), var(--fire2)); border: none; border-radius: 10px; color: white; font-weight: 700; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+  footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 28px 0; margin-top: 40px; text-align: center; }
+  footer p { color: var(--muted); font-size: 0.8rem; line-height: 1.8; }
+  footer a { color: var(--fire2); text-decoration: none; }
+  .order-section { padding: 40px 0; }
+  .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 10px 0; }
+  .error-msg { color: #ff6b6b; font-size: 0.82rem; margin-top: 6px; display: none; }
+  .error-msg.show { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo-circle" id="logoCircle">🔥</div>
+        <div class="brand-text">
+          <h1>EVANDER GAS</h1>
+          <p>02 Kingston Road, Evander, Mpumalanga 2270</p>
+        </div>
+      </div>
+      <div class="header-contact">
+        <a href="tel:0176322026">📞 017 632 2026</a>
+      </div>
+    </div>
+  </header>
+  <div class="hero">
+    <div class="hero-badge">⚡ Same-day delivery in Evander</div>
+    <h2>Gas Delivered <span>Fast & Hot</span><br>Right To Your Door</h2>
+    <p>Order online or call us. We deliver 5kg, 9kg, 14kg, 19kg & 48kg gas cylinders across Evander and surrounding areas.</p>
+  </div>
+  <div class="order-section">
+    <div class="section-title">🛒 Place Your Order</div>
+    <div class="gas-grid" id="gasGrid">
+      <div class="gas-card" data-size="5kg">
+        <span class="tank-icon">🪣</span>
+        <div class="tank-size">5 KG</div>
+        <div class="tank-price">Small cylinder</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('5kg',-1)">−</button>
+          <span class="qty-num" id="qty-5kg">1</span>
+          <button class="qty-btn" onclick="changeQty('5kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="9kg">
+        <span class="tank-icon">🫙</span>
+        <div class="tank-size">9 KG</div>
+        <div class="tank-price">Standard</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('9kg',-1)">−</button>
+          <span class="qty-num" id="qty-9kg">1</span>
+          <button class="qty-btn" onclick="changeQty('9kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="14kg">
+        <span class="tank-icon">🛢️</span>
+        <div class="tank-size">14 KG</div>
+        <div class="tank-price">Popular</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('14kg',-1)">−</button>
+          <span class="qty-num" id="qty-14kg">1</span>
+          <button class="qty-btn" onclick="changeQty('14kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="19kg">
+        <span class="tank-icon">⛽</span>
+        <div class="tank-size">19 KG</div>
+        <div class="tank-price">Home use</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('19kg',-1)">−</button>
+          <span class="qty-num" id="qty-19kg">1</span>
+          <button class="qty-btn" onclick="changeQty('19kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="48kg">
+        <span class="tank-icon">🏭</span>
+        <div class="tank-size">48 KG</div>
+        <div class="tank-price">Industrial</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('48kg',-1)">−</button>
+          <span class="qty-num" id="qty-48kg">1</span>
+          <button class="qty-btn" onclick="changeQty('48kg',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="cart-summary" id="cartSummary">
+      <div class="cart-title">🛒 Your Selection</div>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+    <div class="order-form">
+      <div class="form-row">
+        <div class="field"><label>Your Name *</label><input type="text" id="custName" placeholder="e.g. Sipho Dlamini"></div>
+        <div class="field"><label>Phone Number *</label><input type="tel" id="custPhone" placeholder="e.g. 0821234567"></div>
+      </div>
+      <div class="field"><label>Delivery Address *</label><input type="text" id="custAddress" placeholder="e.g. 15 Mandela Street, Evander"></div>
+      <div class="field"><label>Special Instructions (optional)</label><textarea id="custNotes" placeholder="e.g. Gate code, landmark..."></textarea></div>
+      <div class="error-msg" id="formError">⚠️ Please fill in all required fields and select at least one gas size.</div>
+      <button class="btn-order" onclick="submitOrder()">🔥 PLACE ORDER NOW</button>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="track-section">
+    <div class="section-title">📍 Track Your Order</div>
+    <div class="track-box">
+      <div class="track-input-row">
+        <input type="text" id="trackInput" placeholder="Enter your Order ID e.g. EG-1234" style="text-transform:uppercase;">
+        <button class="btn-track" onclick="trackOrder()">TRACK</button>
+      </div>
+      <div class="error-msg" id="trackError" style="margin-top:10px;"></div>
+      <div class="track-result" id="trackResult">
+        <div class="order-info">
+          <div class="order-info-grid">
+            <div class="info-cell"><label>Order ID</label><p id="tOrderId">—</p></div>
+            <div class="info-cell"><label>Customer</label><p id="tName">—</p></div>
+            <div class="info-cell"><label>Items</label><p id="tItems">—</p></div>
+            <div class="info-cell"><label>Address</label><p id="tAddress">—</p></div>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="timeline-step" id="step-received">
+            <div class="step-indicator"><div class="step-dot">📋</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Order Received</h4><p>Your order has been received and confirmed</p><div class="step-time" id="time-received"></div></div>
+          </div>
+          <div class="timeline-step" id="step-preparing">
+            <div class="step-indicator"><div class="step-dot">🔧</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Preparing Your Order</h4><p>We're getting your cylinders ready</p><div class="step-time" id="time-preparing"></div></div>
+          </div>
+          <div class="timeline-step" id="step-outfordelivery">
+            <div class="step-indicator"><div class="step-dot">🛵</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Out for Delivery</h4><p>Your gas is on its way to you!</p><div class="step-time" id="time-outfordelivery"></div></div>
+          </div>
+          <div class="timeline-step" id="step-delivered">
+            <div class="step-indicator"><div class="step-dot">✅</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Delivered</h4><p>Successfully delivered!</p><div class="step-time" id="time-delivered"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p>🔥 <strong>Evander Gas</strong> — Fast. Reliable. Hot.</p>
+    <p>02 Kingston Road, Evander, Mpumalanga 2270</p>
+    <p><a href="tel:0176322026">017 632 2026</a> &nbsp;|&nbsp; <a href="https://wa.me/27176322026" target="_blank">WhatsApp Us</a></p>
+  </footer>
+</div>
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="modal-icon">🎉</div>
+    <h3>Order Placed!</h3>
+    <p>Your gas order has been received. We'll WhatsApp you shortly!</p>
+    <div class="order-id-display" id="modalOrderId">EG-0000</div>
+    <p class="modal-hint">📌 Save this Order ID to track your delivery.</p>
+    <button class="btn-close-modal" onclick="closeModal()">GOT IT, THANKS!</button>
+  </div>
+</div>
+<script>
+const selectedGas = {};
+const quantities = {'5kg':1,'9kg':1,'14kg':1,'19kg':1,'48kg':1};
+document.querySelectorAll('.gas-card').forEach(card => {
+  card.addEventListener('click', function(e) {
+    if (e.target.classList.contains('qty-btn')) return;
+    const size = this.dataset.size;
+    if (selectedGas[size]) { delete selectedGas[size]; this.classList.remove('selected'); }
+    else { selectedGas[size] = quantities[size]; this.classList.add('selected'); }
+    updateCart();
+  });
+});
+function changeQty(size, delta) {
+  quantities[size] = Math.max(1, (quantities[size]||1) + delta);
+  document.getElementById('qty-'+size).textContent = quantities[size];
+  if (selectedGas[size]) { selectedGas[size] = quantities[size]; updateCart(); }
+}
+function updateCart() {
+  const keys = Object.keys(selectedGas);
+  const summary = document.getElementById('cartSummary');
+  if (keys.length === 0) { summary.classList.remove('visible'); return; }
+  summary.classList.add('visible');
+  document.getElementById('cartItems').innerHTML = keys.map(k => `<span class="cart-item-tag">${selectedGas[k]} × ${k.toUpperCase()}</span>`).join('');
+}
+function submitOrder() {
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const notes = document.getElementById('custNotes').value.trim();
+  const errorEl = document.getElementById('formError');
+  if (!name || !phone || !address || Object.keys(selectedGas).length === 0) { errorEl.classList.add('show'); return; }
+  errorEl.classList.remove('show');
+  const orderId = 'EG-' + Math.floor(1000 + Math.random() * 9000);
+  const itemsText = Object.keys(selectedGas).map(k => `${selectedGas[k]}x${k}`).join(', ');
+  const now = new Date().toISOString();
+  const order = { id:orderId, name, phone, address, notes, items:itemsText, status:'received', timestamps:{received:now}, createdAt:now };
+  const orders = JSON.parse(localStorage.getItem('evander_orders')||'{}');
+  orders[orderId] = order;
+  localStorage.setItem('evander_orders', JSON.stringify(orders));
+  document.getElementById('modalOrderId').textContent = orderId;
+  document.getElementById('successModal').classList.add('open');
+  Object.keys(selectedGas).forEach(k => delete selectedGas[k]);
+  document.querySelectorAll('.gas-card').forEach(c => c.classList.remove('selected'));
+  Object.keys(quantities).forEach(k => { quantities[k]=1; document.getElementById('qty-'+k).textContent=1; });
+  updateCart();
+  ['custName','custPhone','custAddress','custNotes'].forEach(id => document.getElementById(id).value='');
+}
+function closeModal() { document.getElementById('successModal').classList.remove('open'); }
+function trackOrder() {
+  const raw = document.getElementById('trackInput').value.trim().toUpperCase();
+  const errEl = document.getElementById('trackError');
+  const resultEl = document.getElementById('trackResult');
+  errEl.style.display='none'; resultEl.classList.remove('visible');
+  if (!raw) { errEl.textContent='⚠️ Please enter an Order ID.'; errEl.style.display='block'; return; }
+  const orders = JSON.parse(localStorage.getItem('evander_orders')||'{}');
+  const order = orders[raw];
+  if (!order) { errEl.textContent='❌ Order not found. Check your ID and try again.'; errEl.style.display='block'; return; }
+  document.getElementById('tOrderId').textContent = order.id;
+  document.getElementById('tName').textContent = order.name;
+  document.getElementById('tItems').textContent = order.items;
+  document.getElementById('tAddress').textContent = order.address;
+  const steps = ['received','preparing','outfordelivery','delivered'];
+  const statusIndex = steps.indexOf(order.status);
+  steps.forEach((step, i) => {
+    const el = document.getElementById('step-'+step);
+    const timeEl = document.getElementById('time-'+step);
+    el.classList.remove('done','active'); timeEl.textContent='';
+    if (i < statusIndex) { el.classList.add('done'); if(order.timestamps[step]) timeEl.textContent=formatTime(order.timestamps[step]); }
+    else if (i === statusIndex) { el.classList.add('active'); if(order.timestamps[step]) timeEl.textContent=formatTime(order.timestamps[step]); }
+  });
+  resultEl.classList.add('visible');
+}
+function formatTime(iso) { const d=new Date(iso); return d.toLocaleString('en-ZA',{dateStyle:'short',timeStyle:'short'}); }
+document.getElementById('trackInput').addEventListener('keydown', e => { if(e.key==='Enter') trackOrder(); });
+</script>
+</body>
+</html>
