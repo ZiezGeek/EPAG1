@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evander Gas — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fire: #FF4500;
+    --fire2: #FF8C00;
+    --gold: #FFD700;
+    --dark: #0A0A0A;
+    --dark2: #141414;
+    --dark3: #1E1E1E;
+    --dark4: #262626;
+    --light: #F0EBE0;
+    --muted: #777;
+    --success: #22C55E;
+    --warn: #FBBF24;
+    --radius: 14px;
+    --wa-green: #25D366;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--dark); color: var(--light); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  #loginScreen {
+    position: fixed; inset: 0; background: var(--dark);
+    display: flex; align-items: center; justify-content: center; z-index: 999;
+    background-image: radial-gradient(ellipse at 30% 70%, rgba(255,69,0,0.1) 0%, transparent 55%);
+  }
+  .login-box { background: var(--dark2); border: 1px solid rgba(255,69,0,0.25); border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 380px; text-align: center; }
+  .login-box .icon { font-size: 3rem; margin-bottom: 16px; }
+  .login-box h2 { font-family: 'Black Han Sans', sans-serif; font-size: 1.6rem; background: linear-gradient(90deg, var(--fire), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .login-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+  .login-box input { width: 100%; background: var(--dark3); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 16px; color: var(--light); font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; margin-bottom: 14px; letter-spacing: 3px; text-align: center; }
+  .login-box input:focus { border-color: var(--fire); }
+  .btn-login { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--fire), var(--fire2)); border: none; border-radius: 10px; color: white; font-family: 'Black Han Sans', sans-serif; font-size: 1rem; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+  .btn-login:hover { opacity: 0.9; transform: translateY(-1px); }
+  .login-error { color: #ff6b6b; font-size: 0.82rem; margin-top: 10px; display: none; }
+  #app { display: none; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; flex-shrink: 0; background: var(--dark2); border-right: 1px solid rgba(255,255,255,0.06); padding: 24px 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 10; }
+  .sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 20px; }
+  .sidebar-brand h2 { font-family: 'Black Han Sans', sans-serif; font-size: 1.1rem; background: linear-gradient(90deg, var(--fire), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand p { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .nav-item { padding: 11px 20px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--muted); font-size: 0.88rem; transition: all 0.2s; border-left: 3px solid transparent; user-select: none; }
+  .nav-item:hover { color: var(--light); background: rgba(255,255,255,0.03); }
+  .nav-item.active { color: var(--fire2); border-left-color: var(--fire); background: rgba(255,69,0,0.05); }
+  .sidebar-footer { margin-top: auto; padding: 20px; }
+  .btn-logout { width: 100%; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--muted); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+  .btn-logout:hover { border-color: var(--fire); color: var(--fire); }
+  .main { margin-left: 220px; padding: 32px; flex: 1; min-height: 100vh; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  .topbar h1 { font-family: 'Black Han Sans', sans-serif; font-size: 1.6rem; color: var(--light); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media(max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: var(--dark2); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius); padding: 18px 20px; }
+  .stat-card .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; }
+  .stat-card .stat-value { font-family: 'Black Han Sans', sans-serif; font-size: 2rem; margin-top: 6px; }
+  .stat-card .stat-icon { float: right; font-size: 1.6rem; opacity: 0.6; }
+  .orders-list { display: flex; flex-direction: column; gap: 12px; }
+  .order-card { background: var(--dark2); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 18px 20px; transition: border 0.2s; }
+  .order-card:hover { border-color: rgba(255,69,0,0.2); }
+  .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .order-id-badge { background: rgba(255,69,0,0.12); border: 1px solid rgba(255,69,0,0.25); border-radius: 8px; padding: 4px 12px; font-family: 'Black Han Sans', sans-serif; font-size: 0.95rem; color: var(--fire2); letter-spacing: 1px; }
+  .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 0.76rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-received { background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.3); }
+  .status-preparing { background: rgba(251,191,36,0.15); color: var(--warn); border: 1px solid rgba(251,191,36,0.3); }
+  .status-outfordelivery { background: rgba(255,140,0,0.15); color: var(--fire2); border: 1px solid rgba(255,140,0,0.3); }
+  .status-delivered { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+  .order-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  @media(max-width: 700px) { .order-meta { grid-template-columns: 1fr 1fr; } }
+  .meta-cell label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .meta-cell p { font-size: 0.88rem; margin-top: 2px; font-weight: 500; }
+  .order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-action { padding: 8px 14px; border-radius: 8px; border: 1px solid; font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+  .btn-wa { background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.3); color: var(--wa-green); }
+  .btn-wa:hover { background: rgba(37,211,102,0.2); }
+  .btn-status { background: rgba(255,140,0,0.1); border-color: rgba(255,140,0,0.3); color: var(--fire2); }
+  .btn-status:hover { background: rgba(255,140,0,0.2); }
+  .btn-delete { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: #F87171; margin-left: auto; }
+  .btn-delete:hover { background: rgba(239,68,68,0.2); }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-btn { padding: 7px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .filter-btn:hover { border-color: var(--fire2); color: var(--fire2); }
+  .filter-btn.active { background: var(--fire); border-color: var(--fire); color: white; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.5; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--dark2); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 28px; max-width: 440px; width: 100%; transform: scale(0.92); transition: transform 0.3s; }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal h3 { font-family: 'Black Han Sans', sans-serif; font-size: 1.2rem; margin-bottom: 18px; }
+  .status-options { display: flex; flex-direction: column; gap: 10px; }
+  .status-option { padding: 14px 16px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: var(--dark3); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+  .status-option:hover { border-color: var(--fire); background: rgba(255,69,0,0.05); }
+  .status-option.current { border-color: var(--fire2); background: rgba(255,140,0,0.08); }
+  .status-option .opt-icon { font-size: 1.4rem; }
+  .status-option .opt-text h4 { font-size: 0.92rem; font-weight: 600; }
+  .status-option .opt-text p { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+  .modal-footer { margin-top: 18px; display: flex; justify-content: flex-end; gap: 10px; }
+  .btn-cancel { padding: 9px 20px; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .btn-cancel:hover { border-color: var(--fire); color: var(--fire); }
+  .wa-preview { background: #0B1429; border: 1px solid rgba(37,211,102,0.2); border-radius: 10px; padding: 14px 16px; margin-top: 14px; font-size: 0.82rem; line-height: 1.7; color: #d4ffd4; white-space: pre-wrap; }
+  .wa-preview-label { font-size: 0.72rem; color: var(--wa-green); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .settings-section { background: var(--dark2); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+  .settings-section h3 { font-family: 'Black Han Sans', sans-serif; font-size: 1rem; margin-bottom: 16px; color: var(--fire2); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .field input, .field textarea { width: 100%; background: var(--dark3); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; color: var(--light); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border 0.2s; }
+  .field input:focus, .field textarea:focus { border-color: var(--fire); }
+  .btn-save { padding: 10px 24px; background: linear-gradient(135deg, var(--fire), var(--fire2)); border: none; border-radius: 8px; color: white; font-weight: 700; cursor: pointer; font-size: 0.88rem; transition: all 0.2s; }
+  .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--dark3); border: 1px solid rgba(37,211,102,0.3); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999; max-width: 320px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(34,197,94,0.4); color: var(--success); }
+  .toast.error { border-color: rgba(239,68,68,0.4); color: #F87171; }
+  .search-input { background: var(--dark3); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 9px 14px; color: var(--light); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; width: 200px; transition: border 0.2s; }
+  .search-input:focus { border-color: var(--fire); }
+  @media(max-width: 640px) { .sidebar { width: 100%; height: auto; position: relative; padding: 12px; } .layout { flex-direction: column; } .main { margin-left: 0; padding: 16px; } .sidebar-footer { display: none; } }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="icon">🔐</div>
+    <h2>ADMIN ACCESS</h2>
+    <p>Evander Gas — Staff Only</p>
+    <input type="password" id="pwInput" placeholder="Enter PIN" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-login" onclick="login()">SIGN IN</button>
+    <div class="login-error" id="loginError">❌ Incorrect PIN. Try again.</div>
+    <p style="margin-top:16px; font-size:0.72rem; color:#555;">Default PIN: 1234 (change in Settings)</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h2>🔥 EVANDER GAS</h2>
+        <p>Admin Dashboard</p>
+      </div>
+      <div class="nav-item active" onclick="showPage('orders')"><span>📋</span> Orders</div>
+      <div class="nav-item" onclick="showPage('settings')"><span>⚙️</span> Settings</div>
+      <div class="nav-item" onclick="showPage('howto')"><span>📖</span> How To Use</div>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">🚪 Sign Out</button>
+      </div>
+    </nav>
+
+    <div class="main">
+
+      <div class="page active" id="page-orders">
+        <div class="topbar">
+          <h1>📋 Orders</h1>
+          <div class="topbar-right">
+            <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search..." oninput="renderOrders()">
+          </div>
+        </div>
+        <div class="stats-row" id="statsRow"></div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setFilter('received',this)">Received</button>
+          <button class="filter-btn" onclick="setFilter('preparing',this)">Preparing</button>
+          <button class="filter-btn" onclick="setFilter('outfordelivery',this)">Out for Delivery</button>
+          <button class="filter-btn" onclick="setFilter('delivered',this)">Delivered</button>
+        </div>
+        <div class="orders-list" id="ordersList"></div>
+      </div>
+
+      <div class="page" id="page-settings">
+        <div class="topbar"><h1>⚙️ Settings</h1></div>
+        <div class="settings-section">
+          <h3>🔐 Change Admin PIN</h3>
+          <div class="field"><label>Current PIN</label><input type="password" id="currentPin" placeholder="Enter current PIN"></div>
+          <div class="field"><label>New PIN</label><input type="password" id="newPin" placeholder="New PIN (min 4 digits)"></div>
+          <div class="field"><label>Confirm New PIN</label><input type="password" id="confirmPin" placeholder="Confirm new PIN"></div>
+          <button class="btn-save" onclick="changePin()">Save PIN</button>
+        </div>
+        <div class="settings-section">
+          <h3>📱 WhatsApp Number</h3>
+          <div class="field">
+            <label>Your WhatsApp number (international format, no + or spaces)</label>
+            <input type="text" id="settingsWaNum" placeholder="e.g. 27176322026">
+          </div>
+          <button class="btn-save" onclick="saveWaNum()">Save Number</button>
+        </div>
+        <div class="settings-section">
+          <h3>💬 Message Templates</h3>
+          <p style="font-size:0.82rem; color:#666; margin-bottom:16px;">Use {name} {orderId} {items} {address} as placeholders.</p>
+          <div class="field"><label>Order Received</label><textarea id="tpl-received" rows="3"></textarea></div>
+          <div class="field"><label>Preparing</label><textarea id="tpl-preparing" rows="3"></textarea></div>
+          <div class="field"><label>Out for Delivery</label><textarea id="tpl-outfordelivery" rows="3"></textarea></div>
+          <div class="field"><label>Delivered</label><textarea id="tpl-delivered" rows="3"></textarea></div>
+          <button class="btn-save" onclick="saveTemplates()">Save Templates</button>
+        </div>
+      </div>
+
+      <div class="page" id="page-howto">
+        <div class="topbar"><h1>📖 How To Use</h1></div>
+        <div class="settings-section">
+          <h3>🚀 Setup on GitHub Pages (FREE)</h3>
+          <p style="color:#aaa; line-height:2; font-size:0.9rem;">
+            <strong style="color:var(--fire2);">Step 1</strong> — Go to github.com → Sign Up (free)<br>
+            <strong style="color:var(--fire2);">Step 2</strong> — New repository → name it <strong>evander-gas</strong> → Public<br>
+            <strong style="color:var(--fire2);">Step 3</strong> — Upload <strong>index.html</strong> and <strong>admin.html</strong><br>
+            <strong style="color:var(--fire2);">Step 4</strong> — Settings → Pages → select main branch → Save<br>
+            <strong style="color:var(--fire2);">Step 5</strong> — Your links:<br>
+            &nbsp;&nbsp;• Customers: <strong>https://yourusername.github.io/evander-gas/</strong><br>
+            &nbsp;&nbsp;• Admin: <strong>https://yourusername.github.io/evander-gas/admin.html</strong><br><br>
+            <strong style="color:var(--fire2);">Managing Orders</strong><br>
+            • New online orders appear here automatically<br>
+            • Click <strong>Update Status</strong> to move order along<br>
+            • Click <strong>Send WhatsApp</strong> → WhatsApp opens with message ready → just hit Send!<br>
+            • Use <strong>+ Add Order</strong> for phone/call-in customers<br><br>
+            <strong style="color:var(--gold);">💡 Bookmark admin.html on your phone for quick access!</strong>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal">
+    <h3>Update Order Status</h3>
+    <div class="status-options" id="statusOptions"></div>
+    <div id="waPreviewContainer" style="display:none">
+      <div class="wa-preview-label">📱 WhatsApp message preview:</div>
+      <div class="wa-preview" id="waPreviewText"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeStatusModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ORDER MODAL -->
+<div class="modal-overlay" id="addOrderModal">
+  <div class="modal" style="max-width:500px;">
+    <h3>➕ Add Manual Order</h3>
+    <div class="field"><label>Customer Name *</label><input type="text" id="ao-name" placeholder="e.g. Sipho Dlamini"></div>
+    <div class="field"><label>Phone Number *</label><input type="tel" id="ao-phone" placeholder="e.g. 0821234567"></div>
+    <div class="field"><label>Delivery Address *</label><input type="text" id="ao-address" placeholder="e.g. 15 Mandela St, Evander"></div>
+    <div class="field"><label>Items Ordered *</label><input type="text" id="ao-items" placeholder="e.g. 2x9kg, 1x14kg"></div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="ao-notes" placeholder="e.g. Gate code 1234"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="saveManualOrder()">Add Order</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+const ADMIN_PIN_KEY = 'evander_admin_pin';
+const ORDERS_KEY = 'evander_orders';
+const SETTINGS_KEY = 'evander_settings';
+let currentOrderId = null;
+let currentFilter = 'all';
+
+function getPin() { return localStorage.getItem(ADMIN_PIN_KEY) || '1234'; }
+
+function login() {
+  const pin = document.getElementById('pwInput').value;
+  if (pin === getPin()) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pwInput').value = '';
+}
+
+function changePin() {
+  const current = document.getElementById('currentPin').value;
+  const newPin = document.getElementById('newPin').value;
+  const confirm = document.getElementById('confirmPin').value;
+  if (current !== getPin()) { showToast('❌ Current PIN is wrong', 'error'); return; }
+  if (newPin.length < 4) { showToast('❌ PIN must be at least 4 digits', 'error'); return; }
+  if (newPin !== confirm) { showToast('❌ PINs do not match', 'error'); return; }
+  localStorage.setItem(ADMIN_PIN_KEY, newPin);
+  showToast('✅ PIN updated!', 'success');
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id === 'orders') renderOrders();
+}
+
+function getOrders() { return JSON.parse(localStorage.getItem(ORDERS_KEY) || '{}'); }
+function saveOrders(o) { localStorage.setItem(ORDERS_KEY, JSON.stringify(o)); }
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOrders();
+}
+
+const STATUS_CONFIG = {
+  received: { label: 'Order Received', icon: '📋', cls: 'status-received' },
+  preparing: { label: 'Preparing', icon: '🔧', cls: 'status-preparing' },
+  outfordelivery: { label: 'Out for Delivery', icon: '🛵', cls: 'status-outfordelivery' },
+  delivered: { label: 'Delivered', icon: '✅', cls: 'status-delivered' }
+};
+
+function renderOrders() {
+  const orders = getOrders();
+  const list = document.getElementById('ordersList');
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  let filtered = Object.values(orders).reverse();
+  if (currentFilter !== 'all') filtered = filtered.filter(o => o.status === currentFilter);
+  if (search) filtered = filtered.filter(o =>
+    o.id.toLowerCase().includes(search) || o.name.toLowerCase().includes(search) ||
+    (o.phone||'').includes(search) || (o.items||'').toLowerCase().includes(search)
+  );
+  const all = Object.values(orders);
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><span class="stat-icon">📋</span><div class="stat-label">Total Orders</div><div class="stat-value">${all.length}</div></div>
+    <div class="stat-card"><span class="stat-icon">🔧</span><div class="stat-label">Preparing</div><div class="stat-value" style="color:var(--warn)">${all.filter(o=>o.status==='preparing').length}</div></div>
+    <div class="stat-card"><span class="stat-icon">🛵</span><div class="stat-label">Out for Delivery</div><div class="stat-value" style="color:var(--fire2)">${all.filter(o=>o.status==='outfordelivery').length}</div></div>
+    <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Delivered Today</div><div class="stat-value" style="color:var(--success)">${all.filter(o=>o.status==='delivered'&&isToday(o.timestamps?.delivered)).length}</div></div>
+  `;
+  if (filtered.length === 0) { list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>No orders found</p></div>`; return; }
+  list.innerHTML = filtered.map(o => {
+    const cfg = STATUS_CONFIG[o.status] || STATUS_CONFIG.received;
+    return `
+    <div class="order-card">
+      <div class="order-header">
+        <span class="order-id-badge">${o.id}</span>
+        <span class="status-badge ${cfg.cls}">${cfg.icon} ${cfg.label}</span>
+        <span style="color:var(--muted);font-size:0.75rem;margin-left:auto;">${formatTime(o.createdAt)}</span>
+      </div>
+      <div class="order-meta">
+        <div class="meta-cell"><label>Customer</label><p>${o.name}</p></div>
+        <div class="meta-cell"><label>Phone</label><p><a href="tel:${o.phone}" style="color:var(--fire2);text-decoration:none;">${o.phone}</a></p></div>
+        <div class="meta-cell"><label>Items</label><p>${o.items}</p></div>
+        <div class="meta-cell"><label>Address</label><p>${o.address}</p></div>
+        ${o.notes ? `<div class="meta-cell"><label>Notes</label><p>${o.notes}</p></div>` : ''}
+      </div>
+      <div class="order-actions">
+        <button class="btn-action btn-status" onclick="openStatusModal('${o.id}')">🔄 Update Status</button>
+        <button class="btn-action btn-wa" onclick="openWA('${o.id}')">💬 Send WhatsApp</button>
+        <button class="btn-action btn-delete" onclick="deleteOrder('${o.id}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function isToday(iso) {
+  if (!iso) return false;
+  return new Date(iso).toDateString() === new Date().toDateString();
+}
+
+function formatTime(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('en-ZA', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function deleteOrder(id) {
+  if (!confirm('Delete order ' + id + '?')) return;
+  const orders = getOrders(); delete orders[id]; saveOrders(orders); renderOrders();
+  showToast('🗑️ Order deleted', 'success');
+}
+
+function openStatusModal(id) {
+  currentOrderId = id;
+  const order = getOrders()[id];
+  const steps = ['received','preparing','outfordelivery','delivered'];
+  const labels = ['Order Received — confirm with customer','Preparing — packing cylinders','Out for Delivery — on the way!','Delivered — completed!'];
+  const icons = ['📋','🔧','🛵','✅'];
+  document.getElementById('statusOptions').innerHTML = steps.map((s,i) => `
+    <div class="status-option ${order.status===s?'current':''}" onclick="updateStatus('${s}')">
+      <span class="opt-icon">${icons[i]}</span>
+      <div class="opt-text">
+        <h4>${labels[i]}</h4>
+        <p>${order.status===s ? '← Current status' : 'Tap to update'}</p>
+      </div>
+    </div>`).join('');
+  document.getElementById('waPreviewContainer').style.display = 'none';
+  document.getElementById('statusModal').classList.add('open');
+}
+
+function updateStatus(newStatus) {
+  const orders = getOrders();
+  const order = orders[currentOrderId];
+  order.status = newStatus;
+  if (!order.timestamps) order.timestamps = {};
+  order.timestamps[newStatus] = new Date().toISOString();
+  saveOrders(orders);
+  const msg = buildWAMessage(newStatus, order);
+  document.getElementById('waPreviewText').textContent = msg;
+  document.getElementById('waPreviewContainer').style.display = 'block';
+  renderOrders();
+  showToast('✅ Status updated: ' + STATUS_CONFIG[newStatus].label, 'success');
+}
+
+function closeStatusModal() { document.getElementById('statusModal').classList.remove('open'); currentOrderId = null; }
+
+function getSettings() {
+  const defaults = {
+    waNum: '27176322026',
+    tpl: {
+      received: 'Hi {name}! 🔥 Your gas order ({orderId}) has been received! Items: {items}. We\'ll be on our way shortly. — Evander Gas',
+      preparing: 'Hi {name}! 🔧 We\'re preparing your order ({orderId}) now. Items: {items}. Dispatching soon! — Evander Gas',
+      outfordelivery: 'Hi {name}! 🛵 Your gas ({orderId}) is OUT FOR DELIVERY! Items: {items}. Coming to {address}. Almost there! — Evander Gas',
+      delivered: 'Hi {name}! ✅ Your order ({orderId}) has been DELIVERED! Thank you for choosing Evander Gas. 🔥'
+    }
+  };
+  const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+  return { ...defaults, ...saved, tpl: { ...defaults.tpl, ...(saved.tpl || {}) } };
+}
+
+function buildWAMessage(status, order) {
+  return (getSettings().tpl[status] || '')
+    .replace(/{name}/g, order.name)
+    .replace(/{orderId}/g, order.id)
+    .replace(/{items}/g, order.items)
+    .replace(/{address}/g, order.address || '');
+}
+
+function openWA(orderId) {
+  const order = getOrders()[orderId];
+  const phone = (order.phone || '').replace(/\D/g,'');
+  const intlPhone = phone.startsWith('0') ? '27' + phone.slice(1) : phone;
+  const msg = buildWAMessage(order.status, order);
+  window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function saveWaNum() {
+  const s = getSettings(); s.waNum = document.getElementById('settingsWaNum').value;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  showToast('✅ Number saved!', 'success');
+}
+
+function saveTemplates() {
+  const s = getSettings();
+  s.tpl = {
+    received: document.getElementById('tpl-received').value,
+    preparing: document.getElementById('tpl-preparing').value,
+    outfordelivery: document.getElementById('tpl-outfordelivery').value,
+    delivered: document.getElementById('tpl-delivered').value
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  showToast('✅ Templates saved!', 'success');
+}
+
+function openAddModal() { document.getElementById('addOrderModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addOrderModal').classList.remove('open'); }
+
+function saveManualOrder() {
+  const name = document.getElementById('ao-name').value.trim();
+  const phone = document.getElementById('ao-phone').value.trim();
+  const address = document.getElementById('ao-address').value.trim();
+  const items = document.getElementById('ao-items').value.trim();
+  const notes = document.getElementById('ao-notes').value.trim();
+  if (!name||!phone||!address||!items) { showToast('❌ Fill in all required fields','error'); return; }
+  const id = 'EG-' + Math.floor(1000 + Math.random() * 9000);
+  const now = new Date().toISOString();
+  const orders = getOrders();
+  orders[id] = { id, name, phone, address, items, notes, status:'received', timestamps:{received:now}, createdAt:now };
+  saveOrders(orders); closeAddModal(); renderOrders();
+  showToast('✅ Order ' + id + ' added!', 'success');
+  ['ao-name','ao-phone','ao-address','ao-items','ao-notes'].forEach(i => document.getElementById(i).value='');
+}
+
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function init() {
+  const s = getSettings();
+  document.getElementById('settingsWaNum').value = s.waNum;
+  document.getElementById('tpl-received').value = s.tpl.received;
+  document.getElementById('tpl-preparing').value = s.tpl.preparing;
+  document.getElementById('tpl-outfordelivery').value = s.tpl.outfordelivery;
+  document.getElementById('tpl-delivered').value = s.tpl.delivered;
+  document.querySelector('#page-orders .topbar-right').insertAdjacentHTML('beforeend',
+    `<button class="btn-save" onclick="openAddModal()">➕ Add Order</button>`);
+  renderOrders();
+  setInterval(renderOrders, 30000);
+}
+</script>
+</body>
+      </html>
