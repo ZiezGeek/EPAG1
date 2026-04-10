@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉPAG — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #003087;
+  --blue:    #0057B8;
+  --blue-lt: #e8f0fc;
+  --green:   #2E8B3A;
+  --green-lt:#e8f5e9;
+  --lime:    #6DB33F;
+  --fire:    #E63312;
+  --amber:   #FF8F00;
+  --gold:    #F5C518;
+  --white:   #FFFFFF;
+  --slate:   #F4F7FA;
+  --border:  #E2E8F0;
+  --text:    #1A2340;
+  --muted:   #6B7A99;
+  --radius:  14px;
+  --shadow:  0 4px 24px rgba(0,48,135,0.10);
+  --shadow-lg: 0 12px 48px rgba(0,48,135,0.14);
+  --wa-green: #25D366;
+  --warn:    #D97706;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--slate); color: var(--text); font-family: 'Outfit', sans-serif; min-height: 100vh; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 999;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, #0072D6 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+#loginScreen::before {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:500px; height:500px; border-radius:50%;
+  background: radial-gradient(circle, rgba(245,197,24,0.18) 0%, transparent 65%);
+  pointer-events:none;
+}
+#loginScreen::after {
+  content:''; position:absolute; bottom:-80px; left:-80px;
+  width:380px; height:380px; border-radius:50%;
+  background: radial-gradient(circle, rgba(46,139,58,0.20) 0%, transparent 65%);
+  pointer-events:none;
+}
+.login-box {
+  background: var(--white); border-radius: 26px;
+  padding: 46px 40px; width: 100%; max-width: 400px;
+  text-align: center; position: relative; z-index: 1;
+  box-shadow: 0 32px 80px rgba(0,20,80,0.30);
+}
+.login-logo { height: 88px; width: auto; object-fit: contain; margin-bottom: 20px; }
+.login-box h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem; color: var(--navy); margin-bottom: 5px;
+}
+.login-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 28px; }
+.login-box input {
+  width: 100%; background: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 13px 16px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 1.1rem;
+  outline: none; margin-bottom: 14px; letter-spacing: 5px; text-align: center;
+  transition: all 0.2s;
+}
+.login-box input:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(0,87,184,0.10); }
+.btn-login {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none; border-radius: 11px; color: white;
+  font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer;
+  box-shadow: 0 6px 22px rgba(0,48,135,0.28);
+  transition: all 0.2s;
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,48,135,0.36); }
+.login-error { color: var(--fire); font-size: 0.82rem; margin-top: 10px; display: none; font-weight: 600; }
+.login-divider { display:flex; height:3px; margin: 24px -40px -2px; border-radius: 0 0 26px 26px; overflow:hidden; }
+.login-divider span:nth-child(1){flex:1;background:var(--navy);}
+.login-divider span:nth-child(2){flex:1;background:var(--blue);}
+.login-divider span:nth-child(3){flex:1;background:var(--green);}
+.login-divider span:nth-child(4){flex:1;background:var(--gold);}
+.login-divider span:nth-child(5){flex:1;background:var(--fire);}
+
+
+/* ── APP LAYOUT ── */
+#app { display: none; }
+.layout { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 230px; flex-shrink: 0;
+  background: var(--navy);
+  padding: 0; display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  overflow-y: auto; z-index: 10;
+}
+.sidebar-top {
+  padding: 24px 20px 20px; text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 12px;
+}
+.sidebar-logo { height: 58px; width: auto; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.92; }
+.sidebar-top p { font-size: 0.68rem; color: rgba(255,255,255,0.42); margin-top: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+.sync-badge {
+  margin: 0 16px 16px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.7rem; padding: 5px 12px; border-radius: 99px;
+  font-weight: 600;
+}
+.sync-badge.live    { background: rgba(46,139,58,0.18); border: 1px solid rgba(46,139,58,0.35); color: #6EDB7A; }
+.sync-badge.offline { background: rgba(230,51,18,0.18); border: 1px solid rgba(230,51,18,0.35); color: #FF8070; }
+.nav-item {
+  padding: 12px 20px; display: flex; align-items: center; gap: 11px;
+  cursor: pointer; color: rgba(255,255,255,0.55); font-size: 0.88rem; font-weight: 500;
+  transition: all 0.2s; border-left: 3px solid transparent; user-select: none;
+}
+.nav-item:hover { color: rgba(255,255,255,0.90); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: var(--white); border-left-color: var(--gold); background: rgba(255,255,255,0.06); font-weight: 700; }
+.sidebar-footer { margin-top: auto; padding: 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+.btn-logout {
+  width: 100%; padding: 10px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+  color: rgba(255,255,255,0.50); font-size: 0.82rem; cursor: pointer;
+  transition: all 0.2s; font-family: 'Outfit', sans-serif;
+}
+.btn-logout:hover { border-color: #FF8070; color: #FF8070; }
+
+/* ── MAIN ── */
+.main { margin-left: 230px; padding: 32px; flex: 1; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+.topbar h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: var(--navy); }
+.topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* ── STATS ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 28px; }
+@media(max-width:900px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+.stat-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+}
+.stat-card.s-total::before  { background:var(--navy); }
+.stat-card.s-prep::before   { background:var(--amber); }
+.stat-card.s-out::before    { background:var(--blue); }
+.stat-card.s-done::before   { background:var(--green); }
+.stat-label { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.stat-icon  { float: right; font-size: 1.6rem; opacity: 0.5; }
+.stat-value { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; margin-top: 6px; }
+.s-total .stat-value { color: var(--navy); }
+.s-prep .stat-value  { color: var(--amber); }
+.s-out .stat-value   { color: var(--blue); }
+.s-done .stat-value  { color: var(--green); }
+
+/* ── ORDER CARDS ── */
+.orders-list { display: flex; flex-direction: column; gap: 14px; }
+.order-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 18px; padding: 20px 24px;
+  box-shadow: var(--shadow); transition: all 0.22s;
+}
+.order-card:hover { border-color: rgba(0,87,184,0.28); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+.order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.order-id-badge {
+  background: var(--blue-lt); border: 1.5px solid rgba(0,87,184,0.25);
+  border-radius: 8px; padding: 5px 14px;
+  font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 800;
+  color: var(--navy); letter-spacing: 1px;
+}
+.status-badge { padding: 5px 14px; border-radius: 99px; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-received       { background: var(--blue-lt);   color: var(--blue);  border:1px solid rgba(0,87,184,0.25); }
+.status-preparing      { background: #FFF8E1;           color: var(--warn);  border:1px solid rgba(217,119,6,0.28); }
+.status-outfordelivery { background: #FFF0EE;           color: var(--fire);  border:1px solid rgba(230,51,18,0.25); }
+.status-delivered      { background: var(--green-lt);  color: var(--green); border:1px solid rgba(46,139,58,0.28); }
+.order-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+@media(max-width:700px) { .order-meta { grid-template-columns: 1fr 1fr; } }
+.meta-cell label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+.meta-cell p { font-size: 0.88rem; margin-top: 3px; font-weight: 600; color: var(--text); }
+.order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-action {
+  padding: 8px 16px; border-radius: 8px; border: 1.5px solid; font-size: 0.8rem;
+  cursor: pointer; font-weight: 700; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Outfit', sans-serif; white-space: nowrap;
+}
+.btn-wa     { background: rgba(37,211,102,0.08); border-color: rgba(37,211,102,0.35); color: var(--wa-green); }
+.btn-wa:hover { background: rgba(37,211,102,0.18); }
+.btn-status { background: var(--blue-lt); border-color: rgba(0,87,184,0.28); color: var(--blue); }
+.btn-status:hover { background: rgba(0,87,184,0.14); }
+.btn-delete { background: #FFF0EE; border-color: rgba(230,51,18,0.25); color: var(--fire); margin-left: auto; }
+.btn-delete:hover { background: rgba(230,51,18,0.14); }
+
+/* ── FILTERS / SEARCH ── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 7px 18px; border-radius: 99px;
+  border: 1.5px solid var(--border); background: var(--white);
+  color: var(--muted); font-size: 0.8rem; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-weight: 600; transition: all 0.2s;
+}
+.filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+.filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+.search-input {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 9px 14px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 0.88rem; outline: none;
+  width: 210px; transition: all 0.2s;
+}
+.search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,87,184,0.10); }
+.empty-state { text-align: center; padding: 70px 20px; color: var(--muted); }
+.empty-state .empty-icon { font-size: 3.2rem; margin-bottom: 14px; opacity: 0.45; }
+.loading-state { text-align: center; padding: 50px 20px; color: var(--muted); font-size: 0.9rem; }
+
+/* ── SETTINGS ── */
+.settings-section {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 26px; margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.settings-section h3 {
+  font-size: 0.95rem; font-weight: 700; margin-bottom: 18px;
+  color: var(--navy); display: flex; align-items: center; gap: 8px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+}
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+.field input, .field textarea {
+  width: 100%; background: var(--slate); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 11px 14px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 0.92rem; outline: none; transition: all 0.2s;
+}
+.field input:focus, .field textarea:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(0,87,184,0.09); }
+.btn-save {
+  padding: 10px 26px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none; border-radius: 9px; color: white; font-weight: 700;
+  cursor: pointer; font-size: 0.88rem; transition: all 0.2s;
+  font-family: 'Outfit', sans-serif; box-shadow: 0 4px 14px rgba(0,48,135,0.22);
+}
+.btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,20,70,0.50); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white); border: 1px solid var(--border); border-radius: 22px;
+  padding: 30px; max-width: 460px; width: 100%;
+  transform: scale(0.90) translateY(16px); transition: all 0.35s cubic-bezier(0.34,1.46,0.64,1);
+  box-shadow: 0 28px 80px rgba(0,48,135,0.20);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal h3 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--navy); margin-bottom: 20px; }
+.status-options { display: flex; flex-direction: column; gap: 10px; }
+.status-option {
+  padding: 14px 18px; border-radius: 12px; border: 1.5px solid var(--border);
+  background: var(--slate); cursor: pointer;
+  display: flex; align-items: center; gap: 14px; transition: all 0.2s;
+}
+.status-option:hover { border-color: var(--blue); background: var(--blue-lt); }
+.status-option.current { border-color: var(--green); background: var(--green-lt); }
+.status-option .opt-icon { font-size: 1.4rem; }
+.status-option .opt-text h4 { font-size: 0.92rem; font-weight: 700; color: var(--navy); }
+.status-option .opt-text p { font-size: 0.74rem; color: var(--muted); margin-top: 1px; }
+.modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+.btn-cancel {
+  padding: 9px 22px; background: transparent; border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--muted); cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-weight: 600; transition: all 0.2s; font-size: 0.88rem;
+}
+.btn-cancel:hover { border-color: var(--fire); color: var(--fire); }
+.wa-preview {
+  background: #F0FBF2; border: 1px solid rgba(37,211,102,0.25);
+  border-radius: 10px; padding: 14px 16px; margin-top: 14px;
+  font-size: 0.82rem; line-height: 1.75; color: #1A4D2A; white-space: pre-wrap;
+  font-family: 'Outfit', sans-serif;
+}
+.wa-preview-label { font-size: 0.72rem; color: var(--wa-green); margin-bottom: 7px; display: flex; align-items: center; gap: 5px; font-weight: 700; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 13px; padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px; font-size: 0.88rem;
+  transform: translateY(80px); opacity: 0; transition: all 0.3s;
+  z-index: 999; max-width: 320px; box-shadow: var(--shadow-lg);
+  font-weight: 600;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(46,139,58,0.35); color: var(--green); }
+.toast.error   { border-color: rgba(230,51,18,0.30); color: var(--fire); }
+
+@media(max-width:640px) {
+  .sidebar { width: 100%; height: auto; position: relative; }
+  .layout { flex-direction: column; }
+  .main { margin-left: 0; padding: 16px; }
+  .sidebar-footer { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <img src="epag-logo.png" alt="ÉPAG" class="login-logo">
+    <h2>Admin Dashboard</h2>
+    <p>Evander Petroleum and Gas — Staff Access Only</p>
+    <input type="password" id="pwInput" placeholder="Enter PIN" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-login" onclick="login()">SIGN IN</button>
+    <div class="login-error" id="loginError">❌ Incorrect PIN. Please try again.</div>
+    <div class="login-divider"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-top">
+        <img src="epag-logo.png" alt="ÉPAG" class="sidebar-logo">
+        <p>Admin Dashboard</p>
+      </div>
+      <div id="syncBadge" class="sync-badge offline">⚫ Connecting...</div>
+      <div class="nav-item active" onclick="showPage('orders',this)">📋 &nbsp;Orders</div>
+      <div class="nav-item" onclick="showPage('settings',this)">⚙️ &nbsp;Settings</div>
+      <div class="nav-item" onclick="showPage('howto',this)">📖 &nbsp;How To Use</div>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">🚪 Sign Out</button>
+        <p style="margin-top:14px; font-family:'Playfair Display',serif; font-size:0.6rem; color:rgba(255,255,255,0.18); text-align:center; letter-spacing:0.6px; line-height:1.6;">Designed &amp; Created by<br><span style="color:rgba(245,197,24,0.38); font-style:italic;">ZiezGeek · Aldev.inc</span></p>
+      </div>
+    </nav>
+
+    <div class="main">
+
+      <!-- ORDERS PAGE -->
+      <div class="page active" id="page-orders">
+        <div class="topbar">
+          <h1>📋 Orders</h1>
+          <div class="topbar-right">
+            <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search orders..." oninput="renderOrders()">
+            <button class="btn-save" onclick="openAddModal()">➕ Add Order</button>
+          </div>
+        </div>
+        <div class="stats-row" id="statsRow"></div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setFilter('received',this)">Received</button>
+          <button class="filter-btn" onclick="setFilter('preparing',this)">Preparing</button>
+          <button class="filter-btn" onclick="setFilter('outfordelivery',this)">Out for Delivery</button>
+          <button class="filter-btn" onclick="setFilter('delivered',this)">Delivered</button>
+        </div>
+        <div class="orders-list" id="ordersList">
+          <div class="loading-state">🔄 Loading orders from Firebase...</div>
+        </div>
+      </div>
+
+      <!-- SETTINGS PAGE -->
+      <div class="page" id="page-settings">
+        <div class="topbar"><h1>⚙️ Settings</h1></div>
+        <div class="settings-section">
+          <h3>🔐 Change Admin PIN</h3>
+          <div class="field"><label>Current PIN</label><input type="password" id="currentPin" placeholder="Enter current PIN"></div>
+          <div class="field"><label>New PIN</label><input type="password" id="newPin" placeholder="New PIN (min 4 digits)"></div>
+          <div class="field"><label>Confirm New PIN</label><input type="password" id="confirmPin" placeholder="Confirm new PIN"></div>
+          <button class="btn-save" onclick="changePin()">Save PIN</button>
+        </div>
+        <div class="settings-section">
+          <h3>📱 WhatsApp Number</h3>
+          <div class="field">
+            <label>Your WhatsApp number (international format, no + or spaces)</label>
+            <input type="text" id="settingsWaNum" placeholder="e.g. 27176322026">
+          </div>
+          <button class="btn-save" onclick="saveWaNum()">Save Number</button>
+        </div>
+        <div class="settings-section">
+          <h3>💬 WhatsApp Message Templates</h3>
+          <p style="font-size:0.82rem; color:var(--muted); margin-bottom:18px;">Use {name} {orderId} {items} {address} as placeholders.</p>
+          <div class="field"><label>Order Received</label><textarea id="tpl-received" rows="3"></textarea></div>
+          <div class="field"><label>Preparing</label><textarea id="tpl-preparing" rows="3"></textarea></div>
+          <div class="field"><label>Out for Delivery</label><textarea id="tpl-outfordelivery" rows="3"></textarea></div>
+          <div class="field"><label>Delivered</label><textarea id="tpl-delivered" rows="3"></textarea></div>
+          <button class="btn-save" onclick="saveTemplates()">Save Templates</button>
+        </div>
+      </div>
+
+      <!-- HOW TO USE PAGE -->
+      <div class="page" id="page-howto">
+        <div class="topbar"><h1>📖 How To Use</h1></div>
+        <div class="settings-section">
+          <h3>🚀 Deploy on GitHub Pages (FREE)</h3>
+          <p style="color:var(--muted); line-height:2.1; font-size:0.9rem;">
+            <strong style="color:var(--navy);">Step 1</strong> — Go to github.com → Sign Up (free)<br>
+            <strong style="color:var(--navy);">Step 2</strong> — New repository → name it <strong>evander-gas</strong> → Public<br>
+            <strong style="color:var(--navy);">Step 3</strong> — Upload <strong>index.html</strong>, <strong>admin.html</strong>, <strong>epag-logo.png</strong>, and all 5 cylinder images<br>
+            <strong style="color:var(--navy);">Step 4</strong> — Settings → Pages → select main branch → Save<br>
+            <strong style="color:var(--navy);">Step 5</strong> — Your live links:<br>
+            &nbsp;&nbsp;&nbsp;• Customers: <strong>https://yourusername.github.io/evander-gas/</strong><br>
+            &nbsp;&nbsp;&nbsp;• Admin: <strong>https://yourusername.github.io/evander-gas/admin.html</strong><br><br>
+            <strong style="color:var(--blue);">🔥 Firebase Real-Time Sync</strong><br>
+            • Orders placed on any device appear here instantly — no refresh needed<br>
+            • Status updates sync back so customers can track live<br>
+            • Works on your phone, tablet, laptop — any browser, anywhere<br><br>
+            <strong style="color:var(--green);">Managing Orders</strong><br>
+            • New orders appear automatically in real time<br>
+            • Click <strong>Update Status</strong> to move an order through the pipeline<br>
+            • Click <strong>Send WhatsApp</strong> → message opens ready to send<br>
+            • Use <strong>+ Add Order</strong> for walk-in or phone customers<br><br>
+            <strong style="color:var(--amber);">💡 Tip: Bookmark admin.html on your phone for quick access!</strong>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal">
+    <h3>Update Order Status</h3>
+    <div class="status-options" id="statusOptions"></div>
+    <div id="waPreviewContainer" style="display:none">
+      <div class="wa-preview-label">📱 WhatsApp message preview:</div>
+      <div class="wa-preview" id="waPreviewText"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeStatusModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ORDER MODAL -->
+<div class="modal-overlay" id="addOrderModal">
+  <div class="modal" style="max-width:520px;">
+    <h3>➕ Add Manual Order</h3>
+    <div class="field"><label>Customer Name *</label><input type="text" id="ao-name" placeholder="e.g. Sipho Dlamini"></div>
+    <div class="field"><label>Phone Number *</label><input type="tel" id="ao-phone" placeholder="e.g. 0821234567"></div>
+    <div class="field"><label>Delivery Address *</label><input type="text" id="ao-address" placeholder="e.g. 15 Mandela St, Evander"></div>
+    <div class="field"><label>Items Ordered *</label><input type="text" id="ao-items" placeholder="e.g. 2x9kg, 1x14kg"></div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="ao-notes" placeholder="e.g. Gate code 1234"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="saveManualOrder()">Add Order</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<!-- Firebase SDK (module) -->
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, remove, onValue, child }
+                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyD3_fZC8AemkQZ0xGC78s2Scx5pj7K6EkI",
+    authDomain: "evander-gas.firebaseapp.com",
+    databaseURL: "https://evander-gas-default-rtdb.firebaseio.com",
+    projectId: "evander-gas",
+    storageBucket: "evander-gas.firebasestorage.app",
+    messagingSenderId: "36688566295",
+    appId: "1:36688566295:web:7ececa37b4f1f546f5e452"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  window._db = db;
+  window._ref = (p) => ref(db, p);
+  window._set = set; window._get = get; window._remove = remove;
+  window._onValue = onValue; window._child = child; window._rootRef = ref(db);
+
+  // Connection badge
+  onValue(ref(db,'.info/connected'), snap => {
+    const online = snap.val() === true;
+    const badge  = document.getElementById('syncBadge');
+    if (badge) { badge.textContent = online ? '🟢 Live Sync Active' : '🔴 Offline'; badge.className = 'sync-badge ' + (online ? 'live' : 'offline'); }
+  });
+
+  // Real-time orders listener
+  window._startOrdersListener = function() {
+    const unsub = onValue(ref(db,'orders'), snap => {
+      window._liveOrders = snap.val() || {};
+      if (typeof window.renderOrders === 'function') window.renderOrders();
+    });
+    window._stopOrdersListener = unsub;
+  };
+</script>
+
+<script>
+const ADMIN_PIN_KEY = 'evander_admin_pin';
+const SETTINGS_KEY  = 'evander_settings';
+let currentOrderId  = null;
+let currentFilter   = 'all';
+window._liveOrders  = {};
+
+/* ── AUTH ── */
+function getPin() { return localStorage.getItem(ADMIN_PIN_KEY) || '1234'; }
+function login() {
+  if (document.getElementById('pwInput').value === getPin()) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+function logout() {
+  if (window._stopOrdersListener) window._stopOrdersListener();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pwInput').value = '';
+  window._liveOrders = {};
+}
+function changePin() {
+  const c = document.getElementById('currentPin').value;
+  const n = document.getElementById('newPin').value;
+  const f = document.getElementById('confirmPin').value;
+  if (c !== getPin())   { showToast('❌ Current PIN is wrong','error'); return; }
+  if (n.length < 4)     { showToast('❌ PIN must be at least 4 digits','error'); return; }
+  if (n !== f)          { showToast('❌ PINs do not match','error'); return; }
+  localStorage.setItem(ADMIN_PIN_KEY, n);
+  showToast('✅ PIN updated successfully!','success');
+}
+
+/* ── NAVIGATION ── */
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'orders') renderOrders();
+}
+
+/* ── FIREBASE HELPERS ── */
+function getOrders() { return window._liveOrders || {}; }
+async function saveOrder(id, obj) {
+  try { if (window._set && window._ref) await window._set(window._ref('orders/'+id), obj); }
+  catch(e) { showToast('⚠️ Sync error','error'); }
+}
+async function deleteOrderFb(id) {
+  try { if (window._remove && window._ref) await window._remove(window._ref('orders/'+id)); }
+  catch(e) {}
+}
+
+/* ── FILTER ── */
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOrders();
+}
+
+const STATUS_CONFIG = {
+  received:       { label:'Order Received',   icon:'📋', cls:'status-received' },
+  preparing:      { label:'Preparing',         icon:'🔧', cls:'status-preparing' },
+  outfordelivery: { label:'Out for Delivery',  icon:'🛵', cls:'status-outfordelivery' },
+  delivered:      { label:'Delivered',         icon:'✅', cls:'status-delivered' }
+};
+
+/* ── RENDER ── */
+function renderOrders() {
+  const orders = getOrders();
+  const list   = document.getElementById('ordersList');
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  let filtered = Object.values(orders).sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt));
+  if (currentFilter !== 'all') filtered = filtered.filter(o => o.status === currentFilter);
+  if (search) filtered = filtered.filter(o =>
+    (o.id||'').toLowerCase().includes(search) || (o.name||'').toLowerCase().includes(search) ||
+    (o.phone||'').includes(search) || (o.items||'').toLowerCase().includes(search)
+  );
+  const all = Object.values(orders);
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card s-total"><span class="stat-icon">📋</span><div class="stat-label">Total Orders</div><div class="stat-value">${all.length}</div></div>
+    <div class="stat-card s-prep"><span class="stat-icon">🔧</span><div class="stat-label">Preparing</div><div class="stat-value">${all.filter(o=>o.status==='preparing').length}</div></div>
+    <div class="stat-card s-out"><span class="stat-icon">🛵</span><div class="stat-label">Out for Delivery</div><div class="stat-value">${all.filter(o=>o.status==='outfordelivery').length}</div></div>
+    <div class="stat-card s-done"><span class="stat-icon">✅</span><div class="stat-label">Delivered Today</div><div class="stat-value">${all.filter(o=>o.status==='delivered'&&isToday(o.timestamps?.delivered)).length}</div></div>
+  `;
+  if (!filtered.length) { list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>${!all.length?'No orders yet — waiting for your first customer!':'No orders match this filter.'}</p></div>`; return; }
+  list.innerHTML = filtered.map(o => {
+    const cfg = STATUS_CONFIG[o.status] || STATUS_CONFIG.received;
+    return `<div class="order-card">
+      <div class="order-header">
+        <span class="order-id-badge">${o.id}</span>
+        <span class="status-badge ${cfg.cls}">${cfg.icon} ${cfg.label}</span>
+        <span style="color:var(--muted);font-size:0.74rem;margin-left:auto;">${fmt(o.createdAt)}</span>
+      </div>
+      <div class="order-meta">
+        <div class="meta-cell"><label>Customer</label><p>${o.name}</p></div>
+        <div class="meta-cell"><label>Phone</label><p><a href="tel:${o.phone}" style="color:var(--blue);text-decoration:none;">${o.phone}</a></p></div>
+        <div class="meta-cell"><label>Items</label><p>${o.items}</p></div>
+        <div class="meta-cell"><label>Address</label><p>${o.address}</p></div>
+        ${o.notes?`<div class="meta-cell"><label>Notes</label><p>${o.notes}</p></div>`:''}
+      </div>
+      <div class="order-actions">
+        <button class="btn-action btn-status" onclick="openStatusModal('${o.id}')">🔄 Update Status</button>
+        <button class="btn-action btn-wa"     onclick="openWA('${o.id}')">💬 WhatsApp</button>
+        <button class="btn-action btn-delete" onclick="deleteOrder('${o.id}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function isToday(iso) { if(!iso) return false; return new Date(iso).toDateString()===new Date().toDateString(); }
+function fmt(iso) { if(!iso) return ''; return new Date(iso).toLocaleString('en-ZA',{dateStyle:'short',timeStyle:'short'}); }
+
+async function deleteOrder(id) {
+  if (!confirm('Delete order '+id+'?')) return;
+  await deleteOrderFb(id); showToast('🗑️ Order deleted','success');
+}
+
+/* ── STATUS MODAL ── */
+function openStatusModal(id) {
+  currentOrderId = id;
+  const order = getOrders()[id]; if (!order) return;
+  const steps  = ['received','preparing','outfordelivery','delivered'];
+  const labels = ['Order Received — confirm with customer','Preparing — packing cylinders','Out for Delivery — on the way!','Delivered — completed!'];
+  const icons  = ['📋','🔧','🛵','✅'];
+  document.getElementById('statusOptions').innerHTML = steps.map((s,i) => `
+    <div class="status-option ${order.status===s?'current':''}" onclick="updateStatus('${s}')">
+      <span class="opt-icon">${icons[i]}</span>
+      <div class="opt-text"><h4>${labels[i]}</h4><p>${order.status===s?'← Current status':'Tap to update'}</p></div>
+    </div>`).join('');
+  document.getElementById('waPreviewContainer').style.display = 'none';
+  document.getElementById('statusModal').classList.add('open');
+}
+async function updateStatus(ns) {
+  const orders = getOrders(); const order = orders[currentOrderId]; if(!order) return;
+  order.status = ns; if(!order.timestamps) order.timestamps={};
+  order.timestamps[ns] = new Date().toISOString();
+  await saveOrder(order.id, order);
+  document.getElementById('waPreviewText').textContent = buildWAMessage(ns, order);
+  document.getElementById('waPreviewContainer').style.display = 'block';
+  showToast('✅ Status updated: '+STATUS_CONFIG[ns].label,'success');
+}
+function closeStatusModal() { document.getElementById('statusModal').classList.remove('open'); currentOrderId=null; }
+
+/* ── WHATSAPP ── */
+function getSettings() {
+  const d = { waNum:'27176322026', tpl:{
+    received:       "Hi {name}! 🔥 Your gas order ({orderId}) has been received! Items: {items}. We'll be on our way shortly. — ÉPAG",
+    preparing:      "Hi {name}! 🔧 We're preparing your order ({orderId}) now. Items: {items}. Dispatching soon! — ÉPAG",
+    outfordelivery: "Hi {name}! 🛵 Your gas ({orderId}) is OUT FOR DELIVERY! Items: {items}. Coming to {address}. Almost there! — ÉPAG",
+    delivered:      "Hi {name}! ✅ Your order ({orderId}) has been DELIVERED! Thank you for choosing ÉPAG. 🔥"
+  }};
+  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');
+  return {...d,...s,tpl:{...d.tpl,...(s.tpl||{})}};
+}
+function buildWAMessage(status, order) {
+  return (getSettings().tpl[status]||'')
+    .replace(/{name}/g,order.name).replace(/{orderId}/g,order.id)
+    .replace(/{items}/g,order.items).replace(/{address}/g,order.address||'');
+}
+function openWA(id) {
+  const o = getOrders()[id]; if(!o) return;
+  const p = (o.phone||'').replace(/\D/g,'');
+  const ip = p.startsWith('0') ? '27'+p.slice(1) : p;
+  window.open(`https://wa.me/${ip}?text=${encodeURIComponent(buildWAMessage(o.status,o))}`,'_blank');
+}
+function saveWaNum() {
+  const s=getSettings(); s.waNum=document.getElementById('settingsWaNum').value;
+  localStorage.setItem(SETTINGS_KEY,JSON.stringify(s)); showToast('✅ Number saved!','success');
+}
+function saveTemplates() {
+  const s=getSettings();
+  s.tpl={received:document.getElementById('tpl-received').value,preparing:document.getElementById('tpl-preparing').value,outfordelivery:document.getElementById('tpl-outfordelivery').value,delivered:document.getElementById('tpl-delivered').value};
+  localStorage.setItem(SETTINGS_KEY,JSON.stringify(s)); showToast('✅ Templates saved!','success');
+}
+
+/* ── ADD ORDER ── */
+function openAddModal()  { document.getElementById('addOrderModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addOrderModal').classList.remove('open'); }
+async function saveManualOrder() {
+  const name=document.getElementById('ao-name').value.trim();
+  const phone=document.getElementById('ao-phone').value.trim();
+  const address=document.getElementById('ao-address').value.trim();
+  const items=document.getElementById('ao-items').value.trim();
+  const notes=document.getElementById('ao-notes').value.trim();
+  if(!name||!phone||!address||!items){showToast('❌ Fill in all required fields','error');return;}
+  const id='EG-'+Math.floor(1000+Math.random()*9000);
+  const now=new Date().toISOString();
+  await saveOrder(id,{id,name,phone,address,items,notes,status:'received',timestamps:{received:now},createdAt:now});
+  closeAddModal(); showToast('✅ Order '+id+' added!','success');
+  ['ao-name','ao-phone','ao-address','ao-items','ao-notes'].forEach(i=>document.getElementById(i).value='');
+}
+
+/* ── TOAST ── */
+let toastTimer;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg;
+  t.className='toast show '+type; clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+/* ── INIT ── */
+function init() {
+  const s = getSettings();
+  document.getElementById('settingsWaNum').value      = s.waNum;
+  document.getElementById('tpl-received').value       = s.tpl.received;
+  document.getElementById('tpl-preparing').value      = s.tpl.preparing;
+  document.getElementById('tpl-outfordelivery').value = s.tpl.outfordelivery;
+  document.getElementById('tpl-delivered').value      = s.tpl.delivered;
+  if (window._startOrdersListener) window._startOrdersListener();
+  else setTimeout(()=>{ if(window._startOrdersListener) window._startOrdersListener(); },1500);
+}
+</script>
+</body>
+</html>
