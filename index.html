@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉPAG — Evander Petroleum and Gas</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #003087;
+  --blue:    #0057B8;
+  --blue-lt: #e8f0fc;
+  --green:   #2E8B3A;
+  --green-lt:#e8f5e9;
+  --lime:    #6DB33F;
+  --fire:    #E63312;
+  --amber:   #FF8F00;
+  --gold:    #F5C518;
+  --white:   #FFFFFF;
+  --slate:   #F4F7FA;
+  --border:  #E2E8F0;
+  --text:    #1A2340;
+  --muted:   #6B7A99;
+  --radius:  14px;
+  --shadow:  0 4px 24px rgba(0,48,135,0.10);
+  --shadow-lg: 0 12px 48px rgba(0,48,135,0.14);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--white);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── TOPBAR ── */
+.topstrip {
+  background: var(--navy);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 7px 20px;
+  letter-spacing: 0.4px;
+}
+.topstrip a { color: var(--gold); text-decoration: none; font-weight: 600; }
+
+/* ── HEADER ── */
+header {
+  background: var(--white);
+  border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,48,135,0.08);
+}
+.header-inner {
+  max-width: 1060px; margin: 0 auto;
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.logo-wrap { display: flex; align-items: center; justify-content: center; flex: 1; }
+.logo-img { height: 72px; width: auto; object-fit: contain; }
+.header-phone {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--blue-lt);
+  border: 1.5px solid var(--blue);
+  border-radius: 99px; padding: 8px 18px;
+  color: var(--navy); font-weight: 700; font-size: 0.92rem;
+  text-decoration: none; transition: all 0.2s;
+}
+.header-phone:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
+@media(max-width:540px) { .header-phone .phone-text { display:none; } }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 55%, #0072D6 100%);
+  position: relative; overflow: hidden;
+  padding: 80px 24px 88px;
+  text-align: center;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,197,24,0.20) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: -60px; left: -60px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(46,139,58,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+/* diagonal accent stripe */
+.hero-stripe {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 5px;
+  display: flex;
+}
+.hero-stripe span:nth-child(1) { flex:1; background:var(--navy); }
+.hero-stripe span:nth-child(2) { flex:1; background:var(--blue); }
+.hero-stripe span:nth-child(3) { flex:1; background:var(--green); }
+.hero-stripe span:nth-child(4) { flex:1; background:var(--gold); }
+.hero-stripe span:nth-child(5) { flex:1; background:var(--fire); }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(245,197,24,0.15); border: 1.5px solid rgba(245,197,24,0.45);
+  border-radius: 99px; padding: 6px 18px;
+  font-size: 0.77rem; color: var(--gold); font-weight: 700;
+  letter-spacing: 0.9px; text-transform: uppercase;
+  margin-bottom: 26px;
+  animation: fadeUp 0.6s ease both;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 6vw, 3.9rem);
+  color: var(--white); line-height: 1.12; margin-bottom: 20px;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+.hero h1 em { font-style: normal; color: var(--gold); }
+.hero p {
+  color: rgba(255,255,255,0.75); max-width: 500px; margin: 0 auto 40px;
+  line-height: 1.8; font-size: 1.02rem; font-weight: 300;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+.hero-btns {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--fire) 0%, var(--amber) 100%);
+  color: var(--white); border: none; border-radius: 99px;
+  padding: 15px 34px; font-family: 'Outfit', sans-serif;
+  font-size: 0.96rem; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 28px rgba(230,51,18,0.42);
+  transition: all 0.25s; letter-spacing: 0.3px;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(230,51,18,0.52); }
+.btn-outline-w {
+  background: transparent; color: var(--white);
+  border: 2px solid rgba(255,255,255,0.40); border-radius: 99px;
+  padding: 13px 28px; font-family: 'Outfit', sans-serif;
+  font-size: 0.96rem; font-weight: 600; cursor: pointer;
+  transition: all 0.25s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-outline-w:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.70); }
+
+/* ── TRUST BAR ── */
+.trust-bar {
+  background: var(--slate);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 24px;
+}
+.trust-inner {
+  max-width: 1060px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  gap: 36px; flex-wrap: wrap;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 0.82rem; font-weight: 600; color: var(--navy);
+}
+.ti-icon {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; flex-shrink: 0;
+}
+.ti-blue  { background: var(--blue-lt);  color: var(--blue); }
+.ti-green { background: var(--green-lt); color: var(--green); }
+.ti-gold  { background: #FFF8E1;         color: var(--amber); }
+.ti-fire  { background: #FFF0EE;         color: var(--fire); }
+
+/* ── SECTION ── */
+.section { max-width: 1060px; margin: 0 auto; padding: 68px 24px; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1.3px;
+  text-transform: uppercase; color: var(--blue); margin-bottom: 10px;
+}
+.section-label::before { content:''; width:22px; height:2.5px; background:var(--blue); border-radius:2px; }
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: var(--navy); margin-bottom: 10px; line-height: 1.2;
+}
+.section-sub { color: var(--muted); font-size: 0.96rem; font-weight: 400; max-width: 540px; line-height: 1.75; margin-bottom: 44px; }
+
+/* ── GAS GRID ── */
+.gas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 16px; margin-bottom: 36px;
+}
+.gas-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 22px;
+  padding: 22px 14px 18px;
+  text-align: center; cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34,1.4,0.64,1);
+  position: relative; user-select: none;
+  box-shadow: var(--shadow);
+}
+.gas-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0,87,184,0.16);
+}
+.gas-card.selected {
+  border-color: var(--navy);
+  background: linear-gradient(145deg, #EEF4FF, #E8F5E9);
+  box-shadow: 0 0 0 4px rgba(0,87,184,0.14), 0 14px 40px rgba(0,48,135,0.14);
+  transform: translateY(-6px);
+}
+.selected-check {
+  position: absolute; top: 11px; right: 11px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--green); color: white;
+  font-size: 0.68rem; display: none;
+  align-items: center; justify-content: center; font-weight: 800; z-index: 2;
+  box-shadow: 0 2px 8px rgba(46,139,58,0.4);
+}
+.gas-card.selected .selected-check { display: flex; }
+.tank-img {
+  width: 84px; height: 108px; object-fit: contain;
+  margin: 0 auto 14px; display: block;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.18));
+  transition: transform 0.3s ease;
+}
+.gas-card:hover .tank-img,
+.gas-card.selected .tank-img { transform: scale(1.07) translateY(-3px); }
+.tank-size { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+.tank-label { font-size: 0.72rem; color: var(--muted); margin-top: 3px; font-weight: 500; letter-spacing: 0.3px; }
+.qty-controls { display: none; align-items: center; justify-content: center; gap: 11px; margin-top: 13px; }
+.gas-card.selected .qty-controls { display: flex; }
+.qty-btn {
+  width: 29px; height: 29px; border-radius: 50%;
+  border: 2px solid var(--navy);
+  background: var(--white); color: var(--navy);
+  font-size: 1rem; cursor: pointer; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.qty-btn:hover { background: var(--navy); color: var(--white); }
+.qty-num { font-weight: 800; font-size: 1rem; min-width: 20px; text-align: center; color: var(--navy); }
+
+/* ── CART ── */
+.cart-summary {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 16px 22px;
+  margin-bottom: 28px; display: none;
+  align-items: center; gap: 14px; flex-wrap: wrap;
+  animation: slideDown 0.3s ease;
+}
+.cart-summary.visible { display: flex; }
+.cart-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.55); white-space: nowrap; }
+.cart-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.cart-tag {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 8px; padding: 5px 14px;
+  font-size: 0.84rem; color: var(--gold); font-weight: 700;
+}
+
+/* ── FORM ── */
+.form-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 22px; padding: 34px;
+  box-shadow: var(--shadow);
+}
+.form-card-title {
+  font-size: 1.05rem; font-weight: 700; color: var(--navy);
+  margin-bottom: 26px; padding-bottom: 16px;
+  border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:540px) { .form-grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.74rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.6px; }
+.field input, .field textarea {
+  background: var(--slate); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 12px 16px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 0.96rem;
+  transition: all 0.2s; outline: none;
+}
+.field input:focus, .field textarea:focus {
+  border-color: var(--blue); background: var(--white);
+  box-shadow: 0 0 0 3px rgba(0,87,184,0.10);
+}
+.field textarea { resize: vertical; min-height: 88px; }
+.error-msg {
+  background: #FFF0EE; border: 1px solid rgba(230,51,18,0.22);
+  border-radius: 8px; padding: 11px 16px;
+  color: var(--fire); font-size: 0.82rem; font-weight: 600;
+  display: none;
+}
+.error-msg.show { display: block; }
+.btn-order {
+  width: 100%; padding: 17px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border: none; border-radius: 13px; color: white;
+  font-family: 'Outfit', sans-serif; font-size: 1.06rem; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0,48,135,0.30);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 10px; transition: all 0.25s; position: relative; overflow: hidden;
+}
+.btn-order::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--fire) 0%, var(--amber) 100%);
+  opacity: 0; transition: opacity 0.35s;
+}
+.btn-order:hover::before { opacity: 1; }
+.btn-order > * { position: relative; z-index: 1; }
+.btn-order:hover { transform: translateY(-2px); box-shadow: 0 14px 38px rgba(0,48,135,0.36); }
+.btn-order:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── COLOUR DIVIDER ── */
+.color-divider { display: flex; height: 5px; width: 100%; }
+.color-divider span:nth-child(1) { flex:1; background:var(--navy); }
+.color-divider span:nth-child(2) { flex:1; background:var(--blue); }
+.color-divider span:nth-child(3) { flex:1; background:var(--green); }
+.color-divider span:nth-child(4) { flex:1; background:var(--gold); }
+.color-divider span:nth-child(5) { flex:1; background:var(--fire); }
+
+/* ── TRACK SECTION ── */
+.track-section-bg {
+  background: linear-gradient(160deg, #F4F9FF 0%, #F0FAF1 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.track-box {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 22px; padding: 34px; box-shadow: var(--shadow);
+}
+.track-input-row { display: flex; gap: 10px; }
+.track-input-row input {
+  flex: 1; background: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 13px 16px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 0.96rem; outline: none;
+  transition: all 0.2s;
+}
+.track-input-row input:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(0,87,184,0.10); }
+.btn-track {
+  padding: 13px 28px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none; border-radius: 11px; color: white;
+  font-family: 'Outfit', sans-serif; font-weight: 700;
+  cursor: pointer; font-size: 0.92rem; transition: all 0.22s;
+  white-space: nowrap; box-shadow: 0 4px 18px rgba(0,48,135,0.24);
+}
+.btn-track:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(0,48,135,0.34); }
+.track-result { margin-top: 30px; display: none; }
+.track-result.visible { display: block; }
+.order-info-card {
+  background: var(--slate); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px; margin-bottom: 26px;
+}
+.order-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.info-cell label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; }
+.info-cell p { font-weight: 700; margin-top: 4px; font-size: 0.93rem; color: var(--navy); }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; }
+.timeline-step { display: flex; gap: 16px; padding: 14px 0; }
+.step-indicator { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.step-dot {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; transition: all 0.4s; flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.step-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 20px; border-radius: 2px; }
+.timeline-step:last-child .step-line { display: none; }
+.step-content { padding-top: 7px; }
+.step-content h4 { font-weight: 700; font-size: 0.95rem; color: var(--navy); }
+.step-content p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.step-time { font-size: 0.72rem; color: var(--blue); margin-top: 5px; font-weight: 700; }
+.timeline-step.done .step-dot {
+  background: linear-gradient(135deg, var(--green), var(--lime));
+  border-color: var(--green); color: white;
+  box-shadow: 0 4px 14px rgba(46,139,58,0.35);
+}
+.timeline-step.done .step-line { background: linear-gradient(to bottom, var(--green), rgba(46,139,58,0.15)); }
+.timeline-step.active .step-dot {
+  border-color: var(--blue); background: var(--blue-lt); color: var(--blue);
+  box-shadow: 0 0 0 5px rgba(0,87,184,0.13);
+  animation: pulse 1.8s infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 4px rgba(0,87,184,0.12); }
+  50%     { box-shadow: 0 0 0 9px rgba(0,87,184,0.07); }
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,20,70,0.55); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s; padding: 20px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white); border-radius: 26px;
+  padding: 48px 38px; max-width: 420px; width: 100%;
+  text-align: center; transform: scale(0.86) translateY(24px);
+  transition: all 0.38s cubic-bezier(0.34,1.5,0.64,1);
+  box-shadow: 0 32px 90px rgba(0,48,135,0.24);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-icon { font-size: 3.8rem; margin-bottom: 16px; animation: popIn 0.55s ease; display: block; }
+@keyframes popIn { 0%{transform:scale(0) rotate(-15deg)} 70%{transform:scale(1.18) rotate(5deg)} 100%{transform:scale(1) rotate(0)} }
+.modal h3 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: var(--navy); margin-bottom: 10px; }
+.modal p { color: var(--muted); line-height: 1.72; font-size: 0.93rem; margin-bottom: 5px; }
+.order-id-display {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border-radius: 14px; padding: 16px 22px;
+  font-size: 1.55rem; font-weight: 900; color: var(--gold);
+  letter-spacing: 5px; margin: 20px 0;
+  box-shadow: 0 8px 28px rgba(0,48,135,0.26);
+}
+.modal-hint { font-size: 0.78rem; color: var(--muted); }
+.btn-close-modal {
+  margin-top: 26px; padding: 14px 40px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none; border-radius: 99px; color: white;
+  font-family: 'Outfit', sans-serif; font-weight: 700;
+  cursor: pointer; font-size: 0.96rem; transition: all 0.22s;
+  box-shadow: 0 6px 22px rgba(0,48,135,0.28);
+}
+.btn-close-modal:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,48,135,0.38); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.60);
+  padding: 44px 24px;
+  text-align: center;
+}
+.footer-logo { height: 58px; width: auto; object-fit: contain; margin-bottom: 18px; filter: brightness(0) invert(1); opacity: 0.88; }
+.footer-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--white); margin-bottom: 5px; }
+footer p { font-size: 0.8rem; line-height: 2.1; }
+footer a { color: var(--gold); text-decoration: none; font-weight: 600; }
+footer a:hover { color: var(--white); }
+.footer-divider { height: 1px; background: rgba(255,255,255,0.10); margin: 16px auto; max-width: 200px; }
+
+
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(26px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP STRIP -->
+<div class="topstrip">
+  📍 02 Kingston Road, Evander, Mpumalanga &nbsp;|&nbsp;
+  <a href="tel:0176322026">📞 017 632 2026</a> &nbsp;|&nbsp;
+  <a href="https://wa.me/27176322026" target="_blank">💬 WhatsApp</a>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div style="width:140px;"></div>
+    <div class="logo-wrap">
+      <img src="epag-logo.png" alt="ÉPAG — Evander Petroleum and Gas" class="logo-img">
+    </div>
+    <a href="tel:0176322026" class="header-phone">
+      <span>📞</span>
+      <span class="phone-text">017 632 2026</span>
+    </a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">⚡ Same-Day Delivery · Evander &amp; Surrounds</div>
+  <h1>Gas Delivered <em>Fast.</em><br>Right To Your Door.</h1>
+  <p>Order online in minutes. We deliver 5kg to 48kg LPG cylinders across Evander and surrounding communities — quickly and safely.</p>
+  <div class="hero-btns">
+    <a href="#order" class="btn-primary">🔥 Order Gas Now</a>
+    <a href="#track" class="btn-outline-w">📍 Track My Order</a>
+  </div>
+  <div class="hero-stripe"><span></span><span></span><span></span><span></span><span></span></div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><div class="ti-icon ti-blue">🚀</div> Same-Day Delivery</div>
+    <div class="trust-item"><div class="ti-icon ti-green">✅</div> Safe &amp; Certified</div>
+    <div class="trust-item"><div class="ti-icon ti-gold">📱</div> Live Order Tracking</div>
+    <div class="trust-item"><div class="ti-icon ti-fire">💬</div> WhatsApp Updates</div>
+  </div>
+</div>
+
+<!-- ORDER SECTION -->
+<div id="order">
+  <div class="section">
+    <div class="section-label">Place Your Order</div>
+    <div class="section-title">Choose Your Cylinder Size</div>
+    <p class="section-sub">Tap a cylinder to select it, then adjust the quantity. Mix and match — order as many sizes as you need in one go!</p>
+
+    <div class="gas-grid" id="gasGrid">
+      <div class="gas-card" data-size="5kg">
+        <div class="selected-check">✓</div>
+        <img src="5kg.png" alt="5kg gas cylinder" class="tank-img">
+        <div class="tank-size">5 KG</div>
+        <div class="tank-label">Small Cylinder</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('5kg',-1)">−</button>
+          <span class="qty-num" id="qty-5kg">1</span>
+          <button class="qty-btn" onclick="changeQty('5kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="9kg">
+        <div class="selected-check">✓</div>
+        <img src="9kg.png" alt="9kg gas cylinder" class="tank-img">
+        <div class="tank-size">9 KG</div>
+        <div class="tank-label">Standard</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('9kg',-1)">−</button>
+          <span class="qty-num" id="qty-9kg">1</span>
+          <button class="qty-btn" onclick="changeQty('9kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="14kg">
+        <div class="selected-check">✓</div>
+        <img src="14kg.png" alt="14kg gas cylinder" class="tank-img">
+        <div class="tank-size">14 KG</div>
+        <div class="tank-label">Popular Choice</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('14kg',-1)">−</button>
+          <span class="qty-num" id="qty-14kg">1</span>
+          <button class="qty-btn" onclick="changeQty('14kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="19kg">
+        <div class="selected-check">✓</div>
+        <img src="19kg.png" alt="19kg gas cylinder" class="tank-img">
+        <div class="tank-size">19 KG</div>
+        <div class="tank-label">Home Use</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('19kg',-1)">−</button>
+          <span class="qty-num" id="qty-19kg">1</span>
+          <button class="qty-btn" onclick="changeQty('19kg',1)">+</button>
+        </div>
+      </div>
+      <div class="gas-card" data-size="48kg">
+        <div class="selected-check">✓</div>
+        <img src="48kg.png" alt="48kg gas cylinder" class="tank-img">
+        <div class="tank-size">48 KG</div>
+        <div class="tank-label">Industrial</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('48kg',-1)">−</button>
+          <span class="qty-num" id="qty-48kg">1</span>
+          <button class="qty-btn" onclick="changeQty('48kg',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-summary" id="cartSummary">
+      <div class="cart-label">🛒 Your Cart</div>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">📋 Your Delivery Details</div>
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="form-grid">
+          <div class="field"><label>Your Name *</label><input type="text" id="custName" placeholder="e.g. Sipho Dlamini"></div>
+          <div class="field"><label>Phone Number *</label><input type="tel" id="custPhone" placeholder="e.g. 0821234567"></div>
+        </div>
+        <div class="field"><label>Delivery Address *</label><input type="text" id="custAddress" placeholder="e.g. 15 Mandela Street, Evander"></div>
+        <div class="field"><label>Special Instructions (optional)</label><textarea id="custNotes" placeholder="e.g. Gate code, landmark, best time to deliver..."></textarea></div>
+        <div class="error-msg" id="formError">⚠️ Please fill in all required fields and select at least one cylinder size.</div>
+        <button class="btn-order" onclick="submitOrder()" id="orderBtn">
+          <span id="orderBtnText">🔥 PLACE ORDER NOW</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COLOUR DIVIDER -->
+<div class="color-divider"><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- TRACK SECTION -->
+<div id="track" class="track-section-bg">
+  <div class="section">
+    <div class="section-label">Order Tracking</div>
+    <div class="section-title">Track Your Delivery</div>
+    <p class="section-sub">Enter your Order ID to see exactly where your gas is — from the moment we receive it to when it arrives at your door.</p>
+
+    <div class="track-box">
+      <div class="track-input-row">
+        <input type="text" id="trackInput" placeholder="Enter your Order ID  e.g. EG-1234" style="text-transform:uppercase;">
+        <button class="btn-track" onclick="trackOrder()">TRACK</button>
+      </div>
+      <div class="error-msg" id="trackError" style="margin-top:12px;"></div>
+      <div class="track-result" id="trackResult">
+        <div class="order-info-card">
+          <div class="order-info-grid">
+            <div class="info-cell"><label>Order ID</label><p id="tOrderId">—</p></div>
+            <div class="info-cell"><label>Customer</label><p id="tName">—</p></div>
+            <div class="info-cell"><label>Items</label><p id="tItems">—</p></div>
+            <div class="info-cell"><label>Address</label><p id="tAddress">—</p></div>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="timeline-step" id="step-received">
+            <div class="step-indicator"><div class="step-dot">📋</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Order Received</h4><p>Your order has been received and confirmed</p><div class="step-time" id="time-received"></div></div>
+          </div>
+          <div class="timeline-step" id="step-preparing">
+            <div class="step-indicator"><div class="step-dot">🔧</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Preparing Your Order</h4><p>We're getting your cylinders ready</p><div class="step-time" id="time-preparing"></div></div>
+          </div>
+          <div class="timeline-step" id="step-outfordelivery">
+            <div class="step-indicator"><div class="step-dot">🛵</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Out for Delivery</h4><p>Your gas is on its way to you!</p><div class="step-time" id="time-outfordelivery"></div></div>
+          </div>
+          <div class="timeline-step" id="step-delivered">
+            <div class="step-indicator"><div class="step-dot">✅</div><div class="step-line"></div></div>
+            <div class="step-content"><h4>Delivered</h4><p>Successfully delivered. Enjoy!</p><div class="step-time" id="time-delivered"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COLOUR DIVIDER -->
+<div class="color-divider"><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- FOOTER -->
+<footer>
+  <img src="epag-logo.png" alt="ÉPAG" class="footer-logo">
+  <div class="footer-name">Evander Petroleum and Gas (Pty) Ltd</div>
+  <div class="footer-divider"></div>
+  <p>02 Kingston Road, Evander, Mpumalanga 2270</p>
+  <p>
+    <a href="tel:0176322026">📞 017 632 2026</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://wa.me/27176322026" target="_blank">💬 WhatsApp</a>
+  </p>
+  <p style="margin-top:18px; font-size:0.69rem; color:rgba(255,255,255,0.25);">© 2025 ÉPAG — Evander Petroleum and Gas. All rights reserved.</p>
+</footer>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <span class="modal-icon">🎉</span>
+    <h3>Order Placed!</h3>
+    <p>Your gas order has been received. We'll contact you on WhatsApp shortly!</p>
+    <div class="order-id-display" id="modalOrderId">EG-0000</div>
+    <p class="modal-hint">📌 Save this Order ID to track your delivery above.</p>
+    <button class="btn-close-modal" onclick="closeModal()">GOT IT, THANKS!</button>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyD3_fZC8AemkQZ0xGC78s2Scx5pj7K6EkI",
+    authDomain: "evander-gas.firebaseapp.com",
+    databaseURL: "https://evander-gas-default-rtdb.firebaseio.com",
+    projectId: "evander-gas",
+    storageBucket: "evander-gas.firebasestorage.app",
+    messagingSenderId: "36688566295",
+    appId: "1:36688566295:web:7ececa37b4f1f546f5e452"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const dbRef = ref(db);
+  window._fbDb = db; window._fbRef = (p) => ref(db,p);
+  window._fbSet = set; window._fbGet = get;
+  window._fbChild = child; window._fbDbRef = dbRef;
+</script>
+
+<script>
+const selectedGas = {};
+const quantities  = {'5kg':1,'9kg':1,'14kg':1,'19kg':1,'48kg':1};
+document.querySelectorAll('.gas-card').forEach(card => {
+  card.addEventListener('click', function(e) {
+    if (e.target.classList.contains('qty-btn')) return;
+    const size = this.dataset.size;
+    if (selectedGas[size]) { delete selectedGas[size]; this.classList.remove('selected'); }
+    else { selectedGas[size] = quantities[size]; this.classList.add('selected'); }
+    updateCart();
+  });
+});
+function changeQty(size, delta) {
+  quantities[size] = Math.max(1,(quantities[size]||1)+delta);
+  document.getElementById('qty-'+size).textContent = quantities[size];
+  if (selectedGas[size]) { selectedGas[size]=quantities[size]; updateCart(); }
+}
+function updateCart() {
+  const keys = Object.keys(selectedGas);
+  const s    = document.getElementById('cartSummary');
+  if (!keys.length) { s.classList.remove('visible'); return; }
+  s.classList.add('visible');
+  document.getElementById('cartItems').innerHTML = keys.map(k=>`<span class="cart-tag">${selectedGas[k]} × ${k.toUpperCase()}</span>`).join('');
+}
+async function submitOrder() {
+  const name=document.getElementById('custName').value.trim();
+  const phone=document.getElementById('custPhone').value.trim();
+  const address=document.getElementById('custAddress').value.trim();
+  const notes=document.getElementById('custNotes').value.trim();
+  const errEl=document.getElementById('formError');
+  if (!name||!phone||!address||!Object.keys(selectedGas).length){errEl.classList.add('show');return;}
+  errEl.classList.remove('show');
+  const orderId='EG-'+Math.floor(1000+Math.random()*9000);
+  const itemsText=Object.keys(selectedGas).map(k=>`${selectedGas[k]}x${k}`).join(', ');
+  const now=new Date().toISOString();
+  const order={id:orderId,name,phone,address,notes,items:itemsText,status:'received',timestamps:{received:now},createdAt:now};
+  const btn=document.getElementById('orderBtn'); const txt=document.getElementById('orderBtnText');
+  btn.disabled=true; txt.textContent='Placing Order...';
+  try { if(window._fbSet&&window._fbRef) await window._fbSet(window._fbRef('orders/'+orderId),order); } catch(e){}
+  const local=JSON.parse(localStorage.getItem('evander_orders')||'{}'); local[orderId]=order; localStorage.setItem('evander_orders',JSON.stringify(local));
+
+  // ── Silent Telegram notification to owner ──────────────────
+  try {
+    const TELEGRAM_TOKEN   = '8646190539:AAHUi8VL9Bk8AWHNuncA754AUheYgj-89Oc';
+    const TELEGRAM_CHAT_ID = '8331654602';
+    const tgMsg = `🔥 *NEW ORDER — ${orderId}*\n\n`
+      + `👤 *Customer:* ${name}\n`
+      + `📍 *Address:* ${address}\n`
+      + `📞 *Phone:* ${phone}\n`
+      + `🛒 *Items:* ${itemsText}\n`
+      + (notes ? `📝 *Notes:* ${notes}\n` : '')
+      + `\n⏱️ ${new Date().toLocaleString('en-ZA',{dateStyle:'short',timeStyle:'short'})}`;
+    fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: tgMsg,
+        parse_mode: 'Markdown'
+      })
+    });
+  } catch(e) {}
+  // ────────────────────────────────────────────────────────────
+
+  document.getElementById('modalOrderId').textContent=orderId;
+  document.getElementById('successModal').classList.add('open');
+  Object.keys(selectedGas).forEach(k=>delete selectedGas[k]);
+  document.querySelectorAll('.gas-card').forEach(c=>c.classList.remove('selected'));
+  Object.keys(quantities).forEach(k=>{quantities[k]=1;document.getElementById('qty-'+k).textContent=1;});
+  updateCart();
+  ['custName','custPhone','custAddress','custNotes'].forEach(id=>document.getElementById(id).value='');
+  btn.disabled=false; txt.textContent='🔥 PLACE ORDER NOW';
+}
+function closeModal(){document.getElementById('successModal').classList.remove('open');}
+async function trackOrder(){
+  const raw=document.getElementById('trackInput').value.trim().toUpperCase();
+  const errEl=document.getElementById('trackError');
+  const resEl=document.getElementById('trackResult');
+  errEl.style.display='none'; errEl.classList.remove('show'); resEl.classList.remove('visible');
+  if(!raw){errEl.textContent='⚠️ Please enter an Order ID.'; errEl.style.display='block'; errEl.classList.add('show'); return;}
+  let order=null;
+  try { if(window._fbGet&&window._fbChild&&window._fbDbRef){const snap=await window._fbGet(window._fbChild(window._fbDbRef,'orders/'+raw)); if(snap.exists()) order=snap.val();} } catch(e){}
+  if(!order){const local=JSON.parse(localStorage.getItem('evander_orders')||'{}'); order=local[raw]||null;}
+  if(!order){errEl.textContent='❌ Order not found. Please check your Order ID and try again.'; errEl.style.display='block'; errEl.classList.add('show'); return;}
+  document.getElementById('tOrderId').textContent=order.id;
+  document.getElementById('tName').textContent=order.name;
+  document.getElementById('tItems').textContent=order.items;
+  document.getElementById('tAddress').textContent=order.address;
+  const steps=['received','preparing','outfordelivery','delivered'];
+  const si=steps.indexOf(order.status);
+  steps.forEach((s,i)=>{
+    const el=document.getElementById('step-'+s); const tEl=document.getElementById('time-'+s);
+    el.classList.remove('done','active'); tEl.textContent='';
+    if(i<si){el.classList.add('done'); if(order.timestamps?.[s]) tEl.textContent=fmt(order.timestamps[s]);}
+    else if(i===si){el.classList.add('active'); if(order.timestamps?.[s]) tEl.textContent=fmt(order.timestamps[s]);}
+  });
+  resEl.classList.add('visible');
+}
+function fmt(iso){return new Date(iso).toLocaleString('en-ZA',{dateStyle:'short',timeStyle:'short'});}
+document.getElementById('trackInput').addEventListener('keydown',e=>{if(e.key==='Enter')trackOrder();});
+</script>
+</body>
+</html>
