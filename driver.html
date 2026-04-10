@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉPAG — Driver Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #003087;
+  --blue:    #0057B8;
+  --blue-lt: #e8f0fc;
+  --green:   #2E8B3A;
+  --green-lt:#e8f5e9;
+  --fire:    #E63312;
+  --amber:   #FF8F00;
+  --gold:    #F5C518;
+  --white:   #FFFFFF;
+  --slate:   #F4F7FA;
+  --border:  #E2E8F0;
+  --text:    #1A2340;
+  --muted:   #6B7A99;
+  --shadow:  0 4px 24px rgba(0,48,135,0.10);
+  --shadow-lg: 0 14px 48px rgba(0,48,135,0.16);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, #0072D6 100%);
+  min-height: 100vh; font-family: 'Outfit', sans-serif;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 16px 48px;
+}
+body::before {
+  content:''; position:fixed; top:-100px; right:-100px;
+  width:500px; height:500px; border-radius:50%;
+  background: radial-gradient(circle, rgba(245,197,24,0.15) 0%, transparent 65%);
+  pointer-events:none;
+}
+body::after {
+  content:''; position:fixed; bottom:-80px; left:-80px;
+  width:380px; height:380px; border-radius:50%;
+  background: radial-gradient(circle, rgba(46,139,58,0.18) 0%, transparent 65%);
+  pointer-events:none;
+}
+
+/* ── HEADER ── */
+.top-logo {
+  height: 72px; width: auto; object-fit: contain;
+  filter: brightness(0) invert(1); opacity: 0.92;
+  margin-bottom: 6px;
+}
+.top-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; color: rgba(255,255,255,0.60);
+  margin-bottom: 28px; letter-spacing: 0.5px;
+}
+
+/* ── LOGIN CARD ── */
+.card {
+  background: var(--white); border-radius: 24px;
+  padding: 36px 28px; width: 100%; max-width: 420px;
+  box-shadow: var(--shadow-lg); position: relative; z-index: 1;
+  animation: slideUp 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; color: var(--navy);
+  margin-bottom: 5px;
+}
+.card-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
+
+/* PIN input */
+.pin-input {
+  width: 100%; background: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 11px;
+  padding: 14px 16px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 1.2rem;
+  letter-spacing: 6px; text-align: center; outline: none;
+  transition: all 0.2s; margin-bottom: 14px;
+}
+.pin-input:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(0,87,184,0.10); }
+.btn-primary {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none; border-radius: 11px; color: white;
+  font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 6px 22px rgba(0,48,135,0.28);
+  transition: all 0.2s; letter-spacing: 0.4px;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,48,135,0.36); }
+.btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.error-msg {
+  background: #FFF0EE; border: 1px solid rgba(230,51,18,0.22);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--fire); font-size: 0.82rem; font-weight: 600;
+  margin-top: 10px; display: none;
+}
+.error-msg.show { display: block; }
+.success-msg {
+  background: var(--green-lt); border: 1px solid rgba(46,139,58,0.25);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--green); font-size: 0.82rem; font-weight: 600;
+  margin-top: 10px; display: none;
+}
+.success-msg.show { display: block; }
+
+/* ── DRIVER DASHBOARD ── */
+#dashboard { display: none; width: 100%; max-width: 500px; position: relative; z-index: 1; }
+.dash-header {
+  text-align: center; margin-bottom: 24px;
+  animation: slideUp 0.4s ease both;
+}
+.dash-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; color: var(--white);
+}
+.dash-header p { color: rgba(255,255,255,0.60); font-size: 0.82rem; margin-top: 4px; }
+
+/* Order lookup */
+.lookup-card {
+  background: var(--white); border-radius: 20px;
+  padding: 26px 24px; margin-bottom: 18px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.5s 0.1s ease both;
+}
+.lookup-title {
+  font-size: 0.85rem; font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.lookup-row { display: flex; gap: 10px; }
+.lookup-input {
+  flex: 1; background: var(--slate); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 1rem; outline: none;
+  transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+}
+.lookup-input:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(0,87,184,0.10); }
+.btn-lookup {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none; border-radius: 10px; color: white;
+  font-family: 'Outfit', sans-serif; font-weight: 700;
+  cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+  white-space: nowrap; box-shadow: 0 4px 16px rgba(0,48,135,0.22);
+}
+.btn-lookup:hover { transform: translateY(-1px); }
+
+/* Found order card */
+.found-order {
+  background: var(--white); border-radius: 20px;
+  padding: 26px 24px; box-shadow: var(--shadow-lg);
+  display: none;
+  animation: slideUp 0.4s ease both;
+}
+.found-order.visible { display: block; }
+.order-badge {
+  background: var(--blue-lt); border: 1.5px solid rgba(0,87,184,0.25);
+  border-radius: 8px; padding: 5px 14px; display: inline-block;
+  font-size: 1rem; font-weight: 800; color: var(--navy);
+  letter-spacing: 2px; margin-bottom: 16px;
+}
+.order-detail-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 22px;
+}
+.detail-cell label {
+  font-size: 0.68rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+}
+.detail-cell p { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-top: 3px; }
+.detail-cell.full { grid-column: 1 / -1; }
+
+/* Current status pill */
+.current-status {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: 99px;
+  font-size: 0.78rem; font-weight: 700; margin-bottom: 20px;
+}
+.cs-received       { background: var(--blue-lt);   color: var(--blue);  border:1px solid rgba(0,87,184,0.22); }
+.cs-preparing      { background: #FFF8E1;           color: #D97706;      border:1px solid rgba(217,119,6,0.25); }
+.cs-outfordelivery { background: #FFF0EE;           color: var(--fire);  border:1px solid rgba(230,51,18,0.22); }
+.cs-delivered      { background: var(--green-lt);  color: var(--green); border:1px solid rgba(46,139,58,0.25); }
+
+/* Action buttons */
+.action-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px; }
+.action-buttons { display: flex; flex-direction: column; gap: 10px; }
+.btn-action-big {
+  width: 100%; padding: 16px 20px;
+  border: none; border-radius: 14px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.25s; text-align: left;
+}
+.btn-out {
+  background: linear-gradient(135deg, var(--fire) 0%, var(--amber) 100%);
+  color: white; box-shadow: 0 6px 22px rgba(230,51,18,0.30);
+}
+.btn-out:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(230,51,18,0.40); }
+.btn-delivered {
+  background: linear-gradient(135deg, var(--green) 0%, #4CAF50 100%);
+  color: white; box-shadow: 0 6px 22px rgba(46,139,58,0.30);
+}
+.btn-delivered:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(46,139,58,0.40); }
+.btn-already-done {
+  background: var(--slate); color: var(--muted);
+  border: 1.5px solid var(--border); cursor: default;
+}
+.btn-action-big .btn-icon { font-size: 1.6rem; flex-shrink: 0; }
+.btn-action-big .btn-text { display: flex; flex-direction: column; gap: 2px; }
+.btn-action-big .btn-text span { font-size: 0.74rem; font-weight: 400; opacity: 0.80; }
+.btn-back {
+  background: transparent; border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 99px; color: rgba(255,255,255,0.65);
+  padding: 9px 20px; font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; display: block; margin: 18px auto 0;
+}
+.btn-back:hover { border-color: rgba(255,255,255,0.60); color: white; }
+
+/* Divider stripe */
+.stripe { display:flex; height:4px; border-radius: 0 0 20px 20px; margin: 0 -24px -26px; overflow:hidden; }
+.stripe span:nth-child(1){flex:1;background:var(--navy);}
+.stripe span:nth-child(2){flex:1;background:var(--blue);}
+.stripe span:nth-child(3){flex:1;background:var(--green);}
+.stripe span:nth-child(4){flex:1;background:var(--gold);}
+.stripe span:nth-child(5){flex:1;background:var(--fire);}
+
+/* Feedback message */
+.feedback {
+  background: var(--green-lt); border: 1.5px solid rgba(46,139,58,0.25);
+  border-radius: 12px; padding: 16px 18px; margin-top: 16px;
+  color: var(--green); font-weight: 700; font-size: 0.9rem;
+  display: none; align-items: center; gap: 10px;
+  animation: slideUp 0.3s ease both;
+}
+.feedback.show { display: flex; }
+
+/* Footer credit */
+.driver-credit {
+  margin-top: 32px; font-family: 'Playfair Display', serif;
+  font-size: 0.62rem; color: rgba(255,255,255,0.20);
+  letter-spacing: 0.7px; text-align: center;
+}
+.driver-credit span { color: rgba(245,197,24,0.35); font-style: italic; }
+</style>
+</head>
+<body>
+
+<img src="epag-logo.png" alt="ÉPAG" class="top-logo">
+<div class="top-title">Driver Portal</div>
+
+<!-- LOGIN -->
+<div class="card" id="loginCard">
+  <div class="card-title">👋 Driver Sign In</div>
+  <div class="card-sub">Enter your driver PIN to access your deliveries</div>
+  <input type="password" class="pin-input" id="driverPin" placeholder="· · · ·" onkeydown="if(event.key==='Enter')driverLogin()">
+  <button class="btn-primary" onclick="driverLogin()">SIGN IN</button>
+  <div class="error-msg" id="loginError">❌ Incorrect PIN. Please try again.</div>
+  <div class="stripe"><span></span><span></span><span></span><span></span><span></span></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-header">
+    <h2>🛵 Your Deliveries</h2>
+    <p>Look up an order ID and update its status</p>
+  </div>
+
+  <!-- ORDER LOOKUP -->
+  <div class="lookup-card">
+    <div class="lookup-title">🔍 Find Order</div>
+    <div class="lookup-row">
+      <input type="text" class="lookup-input" id="orderInput" placeholder="e.g. EG-1234" onkeydown="if(event.key==='Enter')lookupOrder()">
+      <button class="btn-lookup" onclick="lookupOrder()">FIND</button>
+    </div>
+    <div class="error-msg" id="lookupError" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- FOUND ORDER -->
+  <div class="found-order" id="foundOrder">
+    <div class="order-badge" id="fo-id">EG-0000</div>
+    <div class="order-detail-grid">
+      <div class="detail-cell">
+        <label>Customer</label>
+        <p id="fo-name">—</p>
+      </div>
+      <div class="detail-cell">
+        <label>Phone</label>
+        <p><a id="fo-phone-link" href="#" style="color:var(--blue);text-decoration:none;" id="fo-phone">—</a></p>
+      </div>
+      <div class="detail-cell full">
+        <label>Delivery Address</label>
+        <p id="fo-address">—</p>
+      </div>
+      <div class="detail-cell full">
+        <label>Items</label>
+        <p id="fo-items">—</p>
+      </div>
+      <div class="detail-cell full" id="fo-notes-cell" style="display:none;">
+        <label>Notes</label>
+        <p id="fo-notes">—</p>
+      </div>
+    </div>
+
+    <div class="action-title">Current Status</div>
+    <div id="fo-status-pill" class="current-status cs-received">📋 Order Received</div>
+
+    <div class="action-title">Update Status</div>
+    <div class="action-buttons" id="actionButtons"></div>
+
+    <div class="feedback" id="feedback">
+      <span style="font-size:1.4rem;">✅</span>
+      <span id="feedbackText">Status updated!</span>
+    </div>
+
+    <button class="btn-back" onclick="clearOrder()">← Look up another order</button>
+    <div class="stripe"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <button class="btn-back" onclick="driverLogout()">🚪 Sign Out</button>
+</div>
+
+<div class="driver-credit">Designed &amp; Created by <span>ZiezGeek · Aldev.inc</span></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD3_fZC8AemkQZ0xGC78s2Scx5pj7K6EkI",
+    authDomain: "evander-gas.firebaseapp.com",
+    databaseURL: "https://evander-gas-default-rtdb.firebaseio.com",
+    projectId: "evander-gas",
+    storageBucket: "evander-gas.firebasestorage.app",
+    messagingSenderId: "36688566295",
+    appId: "1:36688566295:web:7ececa37b4f1f546f5e452"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const dbRef = ref(db);
+
+  window._db     = db;
+  window._ref    = (p) => ref(db, p);
+  window._set    = set;
+  window._get    = get;
+  window._child  = child;
+  window._dbRef  = dbRef;
+</script>
+
+<script>
+// ── Driver PIN (separate from admin PIN) ────────────────────
+// Change this to whatever PIN you give your driver
+const DRIVER_PIN = '5678';
+
+const STATUS_CONFIG = {
+  received:       { label:'Order Received',    icon:'📋', cls:'cs-received' },
+  preparing:      { label:'Preparing',          icon:'🔧', cls:'cs-preparing' },
+  outfordelivery: { label:'Out for Delivery',  icon:'🛵', cls:'cs-outfordelivery' },
+  delivered:      { label:'Delivered',          icon:'✅', cls:'cs-delivered' }
+};
+
+let currentOrder = null;
+
+/* ── LOGIN ── */
+function driverLogin() {
+  const pin = document.getElementById('driverPin').value;
+  const err = document.getElementById('loginError');
+  if (pin === DRIVER_PIN) {
+    document.getElementById('loginCard').style.display  = 'none';
+    document.getElementById('dashboard').style.display  = 'block';
+    err.classList.remove('show');
+  } else {
+    err.classList.add('show');
+    document.getElementById('driverPin').value = '';
+  }
+}
+
+function driverLogout() {
+  document.getElementById('loginCard').style.display  = 'block';
+  document.getElementById('dashboard').style.display  = 'none';
+  document.getElementById('driverPin').value = '';
+  clearOrder();
+}
+
+/* ── ORDER LOOKUP ── */
+async function lookupOrder() {
+  const raw    = document.getElementById('orderInput').value.trim().toUpperCase();
+  const errEl  = document.getElementById('lookupError');
+  const foundEl= document.getElementById('foundOrder');
+  errEl.classList.remove('show'); errEl.style.display='none';
+  foundEl.classList.remove('visible');
+  document.getElementById('feedback').classList.remove('show');
+
+  if (!raw) {
+    errEl.textContent = '⚠️ Please enter an Order ID.';
+    errEl.classList.add('show'); errEl.style.display='block'; return;
+  }
+
+  let order = null;
+  try {
+    if (window._get && window._child && window._dbRef) {
+      const snap = await window._get(window._child(window._dbRef, 'orders/' + raw));
+      if (snap.exists()) order = snap.val();
+    }
+  } catch(e) {}
+
+  // Fallback to localStorage
+  if (!order) {
+    const local = JSON.parse(localStorage.getItem('evander_orders') || '{}');
+    order = local[raw] || null;
+  }
+
+  if (!order) {
+    errEl.textContent = '❌ Order not found. Check the ID and try again.';
+    errEl.classList.add('show'); errEl.style.display='block'; return;
+  }
+
+  currentOrder = order;
+  renderFoundOrder(order);
+}
+
+/* ── RENDER FOUND ORDER ── */
+function renderFoundOrder(order) {
+  document.getElementById('fo-id').textContent       = order.id;
+  document.getElementById('fo-name').textContent     = order.name;
+  document.getElementById('fo-address').textContent  = order.address;
+  document.getElementById('fo-items').textContent    = order.items;
+
+  const phoneEl = document.getElementById('fo-phone-link');
+  phoneEl.textContent = order.phone;
+  phoneEl.href = 'tel:' + order.phone;
+
+  if (order.notes) {
+    document.getElementById('fo-notes').textContent = order.notes;
+    document.getElementById('fo-notes-cell').style.display = 'block';
+  } else {
+    document.getElementById('fo-notes-cell').style.display = 'none';
+  }
+
+  // Status pill
+  const cfg  = STATUS_CONFIG[order.status] || STATUS_CONFIG.received;
+  const pill = document.getElementById('fo-status-pill');
+  pill.textContent = cfg.icon + ' ' + cfg.label;
+  pill.className   = 'current-status ' + cfg.cls;
+
+  // Action buttons
+  renderActionButtons(order.status);
+
+  document.getElementById('foundOrder').classList.add('visible');
+}
+
+/* ── ACTION BUTTONS ── */
+function renderActionButtons(currentStatus) {
+  const container = document.getElementById('actionButtons');
+
+  // Only show actions that make sense for a driver
+  // Driver can mark: Out for Delivery, or Delivered
+  const isDelivered     = currentStatus === 'delivered';
+  const isOutForDelivery= currentStatus === 'outfordelivery';
+
+  let html = '';
+
+  // OUT FOR DELIVERY button
+  if (isDelivered || isOutForDelivery) {
+    html += `<button class="btn-action-big btn-already-done" disabled>
+      <span class="btn-icon">🛵</span>
+      <div class="btn-text">Out for Delivery<span>${isOutForDelivery ? '← Already set' : 'Already passed'}</span></div>
+    </button>`;
+  } else {
+    html += `<button class="btn-action-big btn-out" onclick="updateStatus('outfordelivery')">
+      <span class="btn-icon">🛵</span>
+      <div class="btn-text">Mark as Out for Delivery<span>Tap when you leave with the order</span></div>
+    </button>`;
+  }
+
+  // DELIVERED button
+  if (isDelivered) {
+    html += `<button class="btn-action-big btn-already-done" disabled>
+      <span class="btn-icon">✅</span>
+      <div class="btn-text">Delivered<span>← Already completed</span></div>
+    </button>`;
+  } else {
+    html += `<button class="btn-action-big btn-delivered" onclick="updateStatus('delivered')">
+      <span class="btn-icon">✅</span>
+      <div class="btn-text">Mark as Delivered<span>Tap when gas has been handed over</span></div>
+    </button>`;
+  }
+
+  container.innerHTML = html;
+}
+
+/* ── UPDATE STATUS ── */
+async function updateStatus(newStatus) {
+  if (!currentOrder) return;
+
+  currentOrder.status = newStatus;
+  if (!currentOrder.timestamps) currentOrder.timestamps = {};
+  currentOrder.timestamps[newStatus] = new Date().toISOString();
+
+  // Save to Firebase
+  try {
+    if (window._set && window._ref) {
+      await window._set(window._ref('orders/' + currentOrder.id), currentOrder);
+    }
+  } catch(e) {}
+
+  // Update local backup
+  try {
+    const local = JSON.parse(localStorage.getItem('evander_orders') || '{}');
+    local[currentOrder.id] = currentOrder;
+    localStorage.setItem('evander_orders', JSON.stringify(local));
+  } catch(e) {}
+
+  // Update the UI
+  const cfg  = STATUS_CONFIG[newStatus];
+  const pill = document.getElementById('fo-status-pill');
+  pill.textContent = cfg.icon + ' ' + cfg.label;
+  pill.className   = 'current-status ' + cfg.cls;
+
+  renderActionButtons(newStatus);
+
+  const msgs = {
+    outfordelivery: '🛵 Marked as Out for Delivery! Customer can now track you.',
+    delivered:      '✅ Order marked as Delivered! Great work.'
+  };
+  const fb = document.getElementById('feedback');
+  document.getElementById('feedbackText').textContent = msgs[newStatus] || 'Status updated!';
+  fb.classList.add('show');
+}
+
+/* ── CLEAR ── */
+function clearOrder() {
+  currentOrder = null;
+  document.getElementById('foundOrder').classList.remove('visible');
+  document.getElementById('orderInput').value = '';
+  document.getElementById('lookupError').classList.remove('show');
+  document.getElementById('lookupError').style.display = 'none';
+  document.getElementById('feedback').classList.remove('show');
+}
+</script>
+</body>
+</html>
