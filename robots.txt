@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /driver
+
+Sitemap: https://evanderepag.co.za/sitemap.xml
